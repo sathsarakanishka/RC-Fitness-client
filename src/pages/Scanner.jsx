@@ -41,9 +41,16 @@ const Scanner = () => {
                     fingerprintId: fingerprintId
                 });
 
+                const user = res.data.user;
+                const daysRemaining = user.membershipExpiry 
+                    ? Math.max(0, Math.ceil((new Date(user.membershipExpiry) - new Date()) / (1000 * 60 * 60 * 24)))
+                    : 0;
+                
+                const isAccessGranted = daysRemaining > 0;
+
                 setStatus('success');
-                setIdentifiedUser(res.data.user);
-                setMessage(`Access Granted: ${res.data.user.fullName}`);
+                setIdentifiedUser({ ...user, daysRemaining, isAccessGranted });
+                setMessage(isAccessGranted ? `Access Granted: ${user.fullName}` : `Access Denied: Plan Expired`);
                 
                 // Do not auto-reset, let the user see the details and click "Scan Another"
             } else {
@@ -102,9 +109,13 @@ const Scanner = () => {
                                         </div>
                                     </>
                                 )}
-                                {status === 'success' && (
-                                    <div className="w-24 h-24 bg-green-500/10 border border-green-500/30 rounded-full flex items-center justify-center">
-                                        <CheckCircle className="text-green-500 animate-in zoom-in duration-500" size={32} />
+                                 {status === 'success' && identifiedUser && (
+                                    <div className={`w-24 h-24 ${identifiedUser.isAccessGranted ? 'bg-green-500/10 border-green-500/30' : 'bg-red-500/10 border-red-500/30'} border rounded-full flex items-center justify-center`}>
+                                        {identifiedUser.isAccessGranted ? (
+                                            <CheckCircle className="text-green-500 animate-in zoom-in duration-500" size={32} />
+                                        ) : (
+                                            <AlertCircle className="text-red-500 animate-in shake duration-500" size={32} />
+                                        )}
                                     </div>
                                 )}
                                 {status === 'error' && (
@@ -114,8 +125,8 @@ const Scanner = () => {
                                 )}
                             </div>
                             
-                            <h2 className={`text-xl font-black uppercase italic tracking-tighter ${status === 'error' ? 'text-red-500' : status === 'success' ? 'text-green-500' : 'text-white'}`}>
-                                {status === 'scanning' ? 'Scanning...' : status === 'success' ? 'Identified' : 'Failed'}
+                            <h2 className={`text-xl font-black uppercase italic tracking-tighter ${status === 'error' ? 'text-red-500' : status === 'success' ? (identifiedUser?.isAccessGranted ? 'text-green-500' : 'text-red-500') : 'text-white'}`}>
+                                {status === 'scanning' ? 'Scanning...' : status === 'success' ? (identifiedUser?.isAccessGranted ? 'Identified' : 'Denied') : 'Failed'}
                             </h2>
                             <p className="text-gray-500 text-[9px] uppercase tracking-widest font-black mt-2 mb-6 max-w-[240px] leading-relaxed">
                                 {message}
@@ -130,7 +141,15 @@ const Scanner = () => {
                                             </div>
                                             <div className="text-left">
                                                 <h3 className="text-lg font-black uppercase italic leading-none truncate max-w-[180px]">{identifiedUser.fullName}</h3>
-                                                <p className="text-gray-500 text-[9px] font-bold uppercase tracking-widest mt-1">{identifiedUser.membershipType} Member</p>
+                                                <div className="flex items-center gap-2 mt-1">
+                                                    <p className="text-gray-500 text-[9px] font-bold uppercase tracking-widest">
+                                                        {identifiedUser.membershipType === 'None' ? 'Regular' : identifiedUser.membershipType} Plan
+                                                    </p>
+                                                    <div className={`w-1 h-1 rounded-full ${identifiedUser.isAccessGranted ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                                                    <p className={`${identifiedUser.isAccessGranted ? 'text-green-500' : 'text-red-500'} text-[9px] font-bold uppercase tracking-widest`}>
+                                                        {identifiedUser.daysRemaining} Days Left
+                                                    </p>
+                                                </div>
                                             </div>
                                         </div>
                                         
