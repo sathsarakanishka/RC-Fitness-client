@@ -21,6 +21,7 @@ import Progress from './pages/Progress';
 import Equipment from './pages/Equipment';
 import Classes from './pages/Classes';
 import MemberReviews from './pages/MemberReviews';
+import AdminDietPlans from './pages/AdminDietPlans';
 
 import { CartProvider } from './context/CartContext';
 import CartSidebar from './components/CartSidebar';
@@ -63,6 +64,7 @@ function App() {
           <Route path="/shop" element={<AdminRoute><Shop /></AdminRoute>} />
           <Route path="/event" element={<AdminRoute><Event /></AdminRoute>} />
           <Route path="/equipment" element={<AdminRoute><Equipment /></AdminRoute>} />
+          <Route path="/admin-diet-plans" element={<AdminRoute><AdminDietPlans /></AdminRoute>} />
         </Routes>
 
       </Router>

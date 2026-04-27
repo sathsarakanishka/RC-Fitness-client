@@ -1,11 +1,21 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Utensils, X, Info, Save } from 'lucide-react';
 import axios from 'axios';
 
-const AssignDietModal = ({ isOpen, onClose, memberName = 'SARAH CONNOR (#RC-8842)' }) => {
+const AssignDietModal = ({ isOpen, onClose, memberId, memberName = 'Member', existingPlan }) => {
   const [goal, setGoal] = useState('');
   const [dietDetails, setDietDetails] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (existingPlan) {
+      setGoal(existingPlan.goal || '');
+      setDietDetails(existingPlan.dietDetails || '');
+    } else {
+      setGoal('');
+      setDietDetails('');
+    }
+  }, [existingPlan, isOpen]);
 
   if (!isOpen) return null;
 
@@ -17,10 +27,14 @@ const AssignDietModal = ({ isOpen, onClose, memberName = 'SARAH CONNOR (#RC-8842
     
     setIsSubmitting(true);
     try {
-      await axios.post('http://localhost:5000/api/diet/assign', {
-        memberName,
+      const token = localStorage.getItem('authToken');
+      await axios.post('http://localhost:5000/api/diet-plans/update', {
+        userId: memberId,
         goal,
-        dietDetails
+        dietDetails,
+        meals: []
+      }, {
+        headers: { 'auth-token': token }
       });
       alert('Diet plan successfully assigned!');
       onClose();
@@ -123,7 +137,7 @@ const AssignDietModal = ({ isOpen, onClose, memberName = 'SARAH CONNOR (#RC-8842
             disabled={isSubmitting}
             className={`px-6 py-2.5 rounded-xl text-white text-xs font-bold uppercase tracking-widest flex items-center gap-2 shadow-[0_0_15px_rgba(239,68,68,0.3)] transition-all ${isSubmitting ? 'bg-red-800 cursor-not-allowed' : 'bg-red-500 hover:bg-red-600'}`}
           >
-            <Save size={16} /> {isSubmitting ? 'Assigning...' : 'Assign Plan'}
+            <Save size={16} /> {isSubmitting ? 'Saving...' : existingPlan ? 'Update Plan' : 'Assign Plan'}
           </button>
         </div>
 
