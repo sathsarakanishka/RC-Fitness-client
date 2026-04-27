@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { Search, Calendar, Filter, MapPin, Clock, ArrowRight } from 'lucide-react';
 import PublicNavbar from '../components/PublicNavbar';
+import { API_BASE_URL } from '../config';
 
 const PublicEvent = () => {
   const [events, setEvents] = useState([]);
@@ -12,7 +13,7 @@ const PublicEvent = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const res = await axios.get('https://rc-fitness-backend.vercel.app/api/events');
+        const res = await axios.get(`https://rc-fitness-backend.vercel.app/api/events`);
         setEvents(res.data);
       } catch (err) { console.error("Error fetching events:", err); }
     };

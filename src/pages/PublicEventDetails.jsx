@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import { ArrowLeft, Calendar, Dumbbell, Clock, MapPin, Users } from 'lucide-react';
+import { API_BASE_URL } from '../config';
 
 const PublicEventDetails = () => {
   const { id } = useParams();

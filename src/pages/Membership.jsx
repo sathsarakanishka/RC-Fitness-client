@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { Dumbbell, CheckCircle, ArrowRight, Zap, Shield, Clock, Users, Loader } from 'lucide-react';
 import PublicNavbar from '../components/PublicNavbar';
+import { API_BASE_URL } from '../config';
 
 const DEFAULT_PERKS = [
   "Full access to all equipment",
@@ -28,7 +29,7 @@ const Membership = () => {
   useEffect(() => {
     const fetchPlans = async () => {
       try {
-        const res = await axios.get('https://rc-fitness-backend.vercel.app/api/finance/plans');
+        const res = await axios.get(`https://rc-fitness-backend.vercel.app/api/finance/plans`);
         setPlans(res.data);
         if (res.data.length > 0) {
           // Pre-select the middle plan as "popular" if multiple exist

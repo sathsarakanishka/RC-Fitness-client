@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Plus, Minus, ShoppingBag, ArrowRight, CheckCircle, Banknote, Landmark, Upload, Tag } from 'lucide-react';
+import { X, Plus, Minus, ShoppingBag, ArrowRight, CheckCircle, Banknote, Landmark, Upload, Tag, Download, FileText } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import axios from 'axios';
 import { API_BASE_URL } from '../config';
@@ -51,6 +51,16 @@ const CartSidebar = () => {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      if (!file.type.startsWith('image/') && file.type !== 'application/pdf') {
+        alert('Please upload a valid image or PDF file.');
+        e.target.value = '';
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        alert('File size exceeds the 10MB limit. Please upload a smaller file.');
+        e.target.value = '';
+        return;
+      }
       const reader = new FileReader();
       reader.onloadend = () => setReceiptBase64(reader.result);
       reader.readAsDataURL(file);
@@ -60,7 +70,7 @@ const CartSidebar = () => {
   const handleApplyPromo = async () => {
     if (!promoCode) return;
     try {
-      const res = await axios.post('https://rc-fitness-backend.vercel.app/api/shop/promotions/validate', { code: promoCode });
+      const res = await axios.post(`https://rc-fitness-backend.vercel.app/api/shop/promotions/validate`, { code: promoCode });
       setAppliedPromo(res.data);
       setPromoError('');
     } catch (err) {
@@ -218,7 +228,7 @@ const CartSidebar = () => {
                     <div className="relative group">
                       <input
                         type="file"
-                        accept="image/*"
+                        accept="image/*,application/pdf"
                         onChange={handleFileChange}
                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                         required
@@ -226,8 +236,12 @@ const CartSidebar = () => {
                       <div className={`w-full border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center transition-colors ${receiptBase64 ? 'border-green-500/50 bg-green-500/5' : 'border-gray-800 group-hover:border-red-600/50 bg-[#111]'}`}>
                         {receiptBase64 ? (
                           <>
-                            <div className="w-16 h-16 mb-2 rounded-lg overflow-hidden border border-green-500/30">
-                              <img src={receiptBase64} alt="Receipt" className="w-full h-full object-cover" />
+                            <div className="w-16 h-16 mb-2 rounded-lg overflow-hidden border border-green-500/30 flex items-center justify-center bg-green-900/20 text-green-500">
+                              {receiptBase64.startsWith('data:application/pdf') ? (
+                                <FileText size={24} />
+                              ) : (
+                                <img src={receiptBase64} alt="Receipt" className="w-full h-full object-cover" />
+                              )}
                             </div>
                             <span className="text-[10px] font-bold text-green-500 uppercase">Receipt Selected</span>
                           </>

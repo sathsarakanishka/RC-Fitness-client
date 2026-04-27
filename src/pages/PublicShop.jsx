@@ -6,6 +6,8 @@ import PublicNavbar from '../components/PublicNavbar';
 import PromotionBanner from '../components/PromotionBanner';
 import { useCart } from '../context/CartContext';
 
+import { API_BASE_URL } from '../config';
+
 const PublicShop = () => {
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState('');
@@ -15,7 +17,7 @@ const PublicShop = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get('https://rc-fitness-backend.vercel.app/api/shop/products');
+        const res = await axios.get(`https://rc-fitness-backend.vercel.app/api/shop/products`);
         setProducts(res.data);
       } catch (err) { console.error("Error fetching products:", err); }
     };

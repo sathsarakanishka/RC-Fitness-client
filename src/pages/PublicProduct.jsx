@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import { ArrowLeft, ShoppingCart, CheckCircle, XCircle, Dumbbell, ShoppingBag } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { API_BASE_URL } from '../config';
 
 const PublicProduct = () => {
   const { id } = useParams();
@@ -81,8 +82,8 @@ const PublicProduct = () => {
             <button
               onClick={() => addToCart(product)}
               className={`w-full py-5 font-black uppercase tracking-widest text-sm flex items-center justify-center gap-3 transition-all ${product.stock > 0
-                  ? 'bg-red-600 hover:bg-red-700 hover:shadow-[0_0_30px_rgba(220,38,38,0.3)] hover:-translate-y-1 active:scale-95 text-white'
-                  : 'bg-white/5 text-gray-600 cursor-not-allowed border border-white/10'
+                ? 'bg-red-600 hover:bg-red-700 hover:shadow-[0_0_30px_rgba(220,38,38,0.3)] hover:-translate-y-1 active:scale-95 text-white'
+                : 'bg-white/5 text-gray-600 cursor-not-allowed border border-white/10'
                 }`}
               disabled={product.stock === 0}
             >

@@ -150,7 +150,7 @@ const Shop = () => {
     if (!window.confirm("Are you sure you want to delete this product?")) return;
     try {
       const token = localStorage.getItem('authToken');
-      await axios.delete(`https://rc-fitness-backend.vercel.app/shop/products/delete/${id}`, { headers: { 'auth-token': token } });
+      await axios.delete(`https://rc-fitness-backend.vercel.app/api/shop/products/delete/${id}`, { headers: { 'auth-token': token } });
       fetchShopData();
     } catch (err) { console.error("Error deleting product:", err); }
   };
@@ -325,7 +325,11 @@ const Shop = () => {
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-4">
                       <h3 className="font-black text-xl italic uppercase tracking-tighter">{order.userName}</h3>
-                      <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${order.status === 'Paid' ? 'bg-red-600/20 text-red-500' : 'bg-red-600/20 text-red-500'}`}>{order.status}</span>
+                      <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${
+                        ['Paid', 'Shipped', 'Delivered'].includes(order.status) ? 'bg-green-900/20 border-green-900/30 text-green-500' : 
+                        order.status === 'Pending' ? 'bg-yellow-900/20 border-yellow-900/30 text-yellow-500' : 
+                        'bg-red-900/20 border-red-900/30 text-red-500'
+                      }`}>{order.status}</span>
                     </div>
                     <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-4">{order.userEmail} &bull; {new Date(order.createdAt).toLocaleString()}</p>
 

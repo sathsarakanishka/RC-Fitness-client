@@ -4,7 +4,9 @@ import Sidebar from '../../components/Sidebar';
 import StatCard from '../../components/StatCard';
 
 import ReceiptModal from '../../components/ReceiptModal';
-import { Plus, Trash2, Calendar, FileText, Edit2, TrendingUp, BarChart3, Users, ShoppingBag, Banknote, TrendingDown, Receipt, CheckCircle, X } from 'lucide-react';
+import ImageModal from '../../components/ImageModal';
+import { Plus, Trash2, Calendar, FileText, Edit2, TrendingUp, BarChart3, Users, ShoppingBag, Banknote, TrendingDown, Receipt, CheckCircle, X, Image as ImageIcon, Landmark } from 'lucide-react';
+import { API_BASE_URL } from '../../config';
 
 const Finances = () => {
   const [activeTab, setActiveTab] = useState('plans');
@@ -18,6 +20,8 @@ const Finances = () => {
   const [expenses, setExpenses] = useState([]);
   const [showMemberDropdown, setShowMemberDropdown] = useState(false);
   const [jobRoles, setJobRoles] = useState([]);
+  const [shopOrders, setShopOrders] = useState([]);
+  const [previewImage, setPreviewImage] = useState(null);
 
   // Forms for Plans and Payments
   const [newPlan, setNewPlan] = useState({ name: '', price: '', duration: '', features: [] });
@@ -40,15 +44,16 @@ const Finances = () => {
       const token = localStorage.getItem('authToken');
       const config = { headers: { 'auth-token': token } };
 
-      const [plansRes, paymentsRes, staffRes, productsRes, membersRes, payrollRes, expensesRes, jobRolesRes] = await Promise.all([
-        axios.get('https://rc-fitness-backend.vercel.app/api/finance/plans', config).catch(() => ({ data: [] })),
-        axios.get('https://rc-fitness-backend.vercel.app/api/finance/payments', config).catch(() => ({ data: [] })),
-        axios.get('https://rc-fitness-backend.vercel.app/api/user/staff-all', config).catch(() => ({ data: [] })),
-        axios.get('https://rc-fitness-backend.vercel.app/api/shop/products', config).catch(() => ({ data: [] })),
-        axios.get('https://rc-fitness-backend.vercel.app/api/user/all', config).catch(() => ({ data: [] })),
-        axios.get('https://rc-fitness-backend.vercel.app/api/finance/payroll', config).catch(() => ({ data: [] })),
-        axios.get('https://rc-fitness-backend.vercel.app/api/finance/expenses', config).catch(() => ({ data: [] })),
-        axios.get('https://rc-fitness-backend.vercel.app/api/finance/job-roles', config).catch(() => ({ data: [] }))
+      const [plansRes, paymentsRes, staffRes, productsRes, membersRes, payrollRes, expensesRes, jobRolesRes, shopOrdersRes] = await Promise.all([
+        axios.get(`https://rc-fitness-backend.vercel.app/api/finance/plans`, config).catch(() => ({ data: [] })),
+        axios.get(`https://rc-fitness-backend.vercel.app/api/finance/payments`, config).catch(() => ({ data: [] })),
+        axios.get(`https://rc-fitness-backend.vercel.app/api/user/staff-all`, config).catch(() => ({ data: [] })),
+        axios.get(`https://rc-fitness-backend.vercel.app/api/shop/products`, config).catch(() => ({ data: [] })),
+        axios.get(`https://rc-fitness-backend.vercel.app/api/user/all`, config).catch(() => ({ data: [] })),
+        axios.get(`https://rc-fitness-backend.vercel.app/api/finance/payroll`, config).catch(() => ({ data: [] })),
+        axios.get(`https://rc-fitness-backend.vercel.app/api/finance/expenses`, config).catch(() => ({ data: [] })),
+        axios.get(`https://rc-fitness-backend.vercel.app/api/finance/job-roles`, config).catch(() => ({ data: [] })),
+        axios.get(`https://rc-fitness-backend.vercel.app/api/shop/orders`, config).catch(() => ({ data: [] }))
       ]);
 
       setPlans(plansRes.data || []);
@@ -59,6 +64,7 @@ const Finances = () => {
       setPayroll(payrollRes.data || []);
       setExpenses(expensesRes.data || []);
       setJobRoles(jobRolesRes.data || []);
+      setShopOrders(shopOrdersRes.data || []);
     } catch (err) { console.error("Error fetching finance data:", err); }
   };
 
@@ -82,6 +88,16 @@ const Finances = () => {
   const handleAddPlan = async (e) => {
     e.preventDefault();
     if (!newPlan.name || !newPlan.price || !newPlan.duration) return;
+
+    if (Number(newPlan.price) <= 0) {
+      alert("Plan price must be greater than 0");
+      return;
+    }
+
+    if (!editPlanId && plans.some(p => p.name.trim().toLowerCase() === newPlan.name.trim().toLowerCase())) {
+      alert("A plan with this exact name already exists.");
+      return;
+    }
 
     const submittedPlan = { ...newPlan, price: Number(newPlan.price) };
 
@@ -118,11 +134,27 @@ const Finances = () => {
     e.preventDefault();
     if (!newPayment.member || !newPayment.amount || !newPayment.date) return;
 
+    if (Number(newPayment.amount) <= 0) {
+      alert("Payment amount must be greater than 0");
+      return;
+    }
+
+    const todayDateStr = new Date().toISOString().split('T')[0];
+    if (newPayment.date > todayDateStr) {
+      alert("Payment date cannot be in the future");
+      return;
+    }
+
     // Auto-fill email if they typed the name manually instead of selecting
     let userEmail = newPayment.email;
     if (!userEmail) {
       const foundMember = members.find(m => m.fullName.toLowerCase() === newPayment.member.toLowerCase());
-      if (foundMember) userEmail = foundMember.email;
+      if (foundMember) {
+        userEmail = foundMember.email;
+      } else {
+        alert("Please select a registered member from the list.");
+        return;
+      }
     }
 
     const submittedPayment = { ...newPayment, email: userEmail, amount: Number(newPayment.amount) };
@@ -173,6 +205,10 @@ const Finances = () => {
   // --- STAFF SALARY HANDLER ---
   const handleUpdateSalary = async (id) => {
     if (!editSalaryValue) return;
+    if (Number(editSalaryValue) < 0) {
+      alert("Salary cannot be negative");
+      return;
+    }
     try {
       const token = localStorage.getItem('authToken');
       const res = await axios.put(`https://rc-fitness-backend.vercel.app/api/user/update/${id}`, { salary: Number(editSalaryValue) }, { headers: { 'auth-token': token } });
@@ -184,6 +220,10 @@ const Finances = () => {
 
   const handleUpdateJobRoleSalary = async (id) => {
     if (!editJobRoleSalary) return;
+    if (Number(editJobRoleSalary) < 0) {
+      alert("Base salary cannot be negative");
+      return;
+    }
     try {
       const token = localStorage.getItem('authToken');
       const res = await axios.put(`https://rc-fitness-backend.vercel.app/api/finance/job-roles/update/${id}`, { baseSalary: Number(editJobRoleSalary) }, { headers: { 'auth-token': token } });
@@ -218,6 +258,17 @@ const Finances = () => {
 
   const handleAddExpense = async (e) => {
     e.preventDefault();
+    
+    if (Number(newExpense.amount) <= 0) {
+      alert("Expense amount must be greater than 0");
+      return;
+    }
+
+    const todayDateStr = new Date().toISOString().split('T')[0];
+    if (newExpense.date > todayDateStr) {
+      alert("Expense date cannot be in the future");
+      return;
+    }
     try {
       const token = localStorage.getItem('authToken');
       await axios.post('https://rc-fitness-backend.vercel.app/api/finance/expenses/add', newExpense, { headers: { 'auth-token': token } });
@@ -247,6 +298,15 @@ const Finances = () => {
     const diffTime = expiry - today;
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays > 0 ? diffDays : 0;
+  };
+
+  const handleUpdateOrderStatus = async (orderId, newStatus) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      await axios.put(`https://rc-fitness-backend.vercel.app/api/shop/orders/${orderId}/status`, { status: newStatus }, { headers: { 'auth-token': token } });
+      fetchFinanceData();
+      alert(`Order status updated to ${newStatus}`);
+    } catch (err) { console.error("Error updating order status:", err); }
   };
 
   const handleDownloadReport = () => {
@@ -297,6 +357,10 @@ const Finances = () => {
           <button onClick={() => setActiveTab('payments')} className={`p-4 rounded-2xl border flex flex-col items-center justify-center gap-2 transition-all ${activeTab === 'payments' ? 'bg-red-600/10 border-red-600 text-red-500 shadow-[0_0_30px_rgba(220,38,38,0.15)]' : 'bg-[#080808] border-gray-800 text-gray-400 hover:border-gray-600 hover:text-white'}`}>
             <Banknote size={20} />
             <span className="text-[9px] font-black uppercase tracking-widest">Payments</span>
+          </button>
+          <button onClick={() => setActiveTab('SOP')} className={`p-4 rounded-2xl border flex flex-col items-center justify-center gap-2 transition-all ${activeTab === 'SOP' ? 'bg-red-600/10 border-red-600 text-red-500 shadow-[0_0_30px_rgba(220,38,38,0.15)]' : 'bg-[#080808] border-gray-800 text-gray-400 hover:border-gray-600 hover:text-white'}`}>
+            <ImageIcon size={20} />
+            <span className="text-[9px] font-black uppercase tracking-widest">SOP</span>
           </button>
         </div>
 
@@ -753,6 +817,112 @@ const Finances = () => {
             </section>
           )}
 
+          {/* SOP - Shop Order Payments (Bank Slips) */}
+          {activeTab === 'SOP' && (
+            <section className="bg-[#121212] border border-gray-800 rounded-3xl p-6 lg:p-8 shadow-xl animate-in fade-in slide-in-from-bottom-4">
+              <div className="flex items-center gap-3 mb-6 border-b border-gray-800 pb-4">
+                <ImageIcon className="text-red-500" size={24} />
+                <h2 className="text-2xl font-black uppercase italic tracking-wider">Shop Order Payments (SOP)</h2>
+              </div>
+
+              <div className="space-y-6">
+                {shopOrders.filter(o => o.paymentMethod === 'Bank' || o.paymentMethod === 'Koko').map(order => (
+                  <div key={order._id} className="bg-black border border-gray-800 rounded-2xl overflow-hidden hover:border-gray-700 transition-colors">
+                    <div className="p-6 flex flex-col lg:flex-row gap-6">
+                      {/* Receipt Image */}
+                      <div className="w-full lg:w-48 h-64 lg:h-48 bg-[#080808] rounded-xl overflow-hidden border border-gray-800 group relative">
+                        {order.receiptImage ? (
+                          <>
+                            {order.receiptImage.startsWith('data:application/pdf') ? (
+                              <div className="w-full h-full flex flex-col items-center justify-center bg-[#111] text-red-500 opacity-80 group-hover:opacity-100 transition-opacity">
+                                <FileText size={48} className="mb-2" />
+                                <span className="text-[10px] font-bold uppercase tracking-widest text-red-400">PDF Document</span>
+                              </div>
+                            ) : (
+                              <img src={order.receiptImage} alt="Receipt" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                            )}
+                            <button
+                              onClick={() => setPreviewImage(order.receiptImage)}
+                              className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                            >
+                              <span className="text-[10px] font-black uppercase bg-red-600 px-3 py-1.5 rounded">View Full</span>
+                            </button>
+                          </>
+                        ) : (
+                          <div className="w-full h-full flex flex-col items-center justify-center text-gray-700">
+                            <ImageIcon size={32} className="mb-2" />
+                            <span className="text-[8px] font-bold uppercase">No Receipt Captured</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Order Details */}
+                      <div className="flex-1">
+                        <div className="flex justify-between items-start mb-4">
+                          <div>
+                            <h3 className="text-lg font-black uppercase italic tracking-tight">{order.userName}</h3>
+                            <p className="text-gray-500 text-[10px] font-bold uppercase tracking-[0.2em]">{order.userEmail}</p>
+                          </div>
+                          <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${order.status === 'Paid' ? 'border-green-900/30 bg-green-900/10 text-green-500' :
+                            order.status === 'Pending' ? 'border-red-900/30 bg-red-900/10 text-red-500' : 'border-gray-800 bg-gray-900/50 text-gray-500'
+                            }`}>
+                            {order.status}
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-x-8 gap-y-4 mb-6">
+                          <div>
+                            <p className="text-[8px] font-black uppercase text-gray-600 tracking-widest mb-1">Payment Method</p>
+                            <p className="text-xs font-bold text-white flex items-center gap-2">
+                              {order.paymentMethod === 'Bank' ? <Landmark size={12} className="text-red-500" /> : <ShoppingBag size={12} className="text-red-500" />}
+                              {order.paymentMethod}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-[8px] font-black uppercase text-gray-600 tracking-widest mb-1">Total Amount</p>
+                            <p className="text-sm font-black text-red-500 italic">LKR {(order.totalAmount || 0).toLocaleString()}</p>
+                          </div>
+                          <div>
+                            <p className="text-[8px] font-black uppercase text-gray-600 tracking-widest mb-1">Order Date</p>
+                            <p className="text-xs font-bold text-gray-400">{order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A'} {order.createdAt ? new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</p>
+                          </div>
+                          <div>
+                            <p className="text-[8px] font-black uppercase text-gray-600 tracking-widest mb-1">Promo Code</p>
+                            <p className="text-xs font-bold text-gray-400">{order.promoCode || 'None'}</p>
+                          </div>
+                        </div>
+
+                        {/* Action Buttons */}
+                        {order.status === 'Pending' && (
+                          <div className="flex gap-3 pt-4 border-t border-gray-900">
+                            <button
+                              onClick={() => handleUpdateOrderStatus(order._id, 'Paid')}
+                              className="flex-1 bg-red-600 hover:bg-red-700 text-white font-black uppercase text-[10px] tracking-widest py-3 rounded-xl transition-all shadow-lg shadow-red-900/20 flex items-center justify-center gap-2 active:scale-95"
+                            >
+                              <CheckCircle size={14} /> Approve Payment
+                            </button>
+                            <button
+                              onClick={() => handleUpdateOrderStatus(order._id, 'Cancelled')}
+                              className="flex-1 bg-[#111] hover:bg-gray-800 text-gray-400 hover:text-white border border-gray-800 font-black uppercase text-[10px] tracking-widest py-3 rounded-xl transition-all flex items-center justify-center gap-2 active:scale-95"
+                            >
+                              <X size={14} /> Reject
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {shopOrders.filter(o => o.paymentMethod === 'Bank' || o.paymentMethod === 'Koko').length === 0 && (
+                  <div className="py-20 flex flex-col items-center justify-center border border-dashed border-gray-900 rounded-3xl opacity-50">
+                    <ImageIcon size={48} className="text-gray-800 mb-4" />
+                    <p className="text-gray-500 uppercase tracking-widest font-black text-xs">No Bank/Koko orders found.</p>
+                  </div>
+                )}
+              </div>
+            </section>
+          )}
+
           {activeTab === 'dashboard' && (
             <div className="flex flex-col items-center justify-center p-12 opacity-50 my-10 border-2 border-dashed border-gray-900 rounded-3xl">
               <span className="text-gray-500 text-xs font-black uppercase tracking-[0.2em]">Select a module above to view details</span>
@@ -760,6 +930,13 @@ const Finances = () => {
           )}
         </div>
       </main>
+
+      {previewImage && (
+        <ImageModal
+          src={previewImage}
+          onClose={() => setPreviewImage(null)}
+        />
+      )}
     </div>
   );
 };
