@@ -23,7 +23,6 @@ import Equipment from './pages/Equipment';
 import Classes from './pages/Classes';
 import AdminClass from './pages/AdminClass';
 import MemberReviews from './pages/MemberReviews';
-import AdminDietPlans from './pages/AdminDietPlans';
 import Membership from './pages/Membership';
 import Scanner from './pages/Scanner';
 import FingerPrintDisplay from './pages/FingerPrintDisplay';
@@ -73,7 +72,6 @@ function App() {
           <Route path="/shop" element={<AdminRoute><Shop /></AdminRoute>} />
           <Route path="/event" element={<AdminRoute><Event /></AdminRoute>} />
           <Route path="/equipment" element={<AdminRoute><Equipment /></AdminRoute>} />
-          <Route path="/admin-diet-plans" element={<AdminRoute><AdminDietPlans /></AdminRoute>} />
           <Route path="/class" element={<AdminRoute><AdminClass /></AdminRoute>} />
         </Routes>
 
