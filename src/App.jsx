@@ -14,6 +14,7 @@ import PublicShop from './pages/PublicShop';
 import PublicProduct from './pages/PublicProduct';
 import PublicEvent from './pages/PublicEvent';
 import PublicEventDetails from './pages/PublicEventDetails';
+import PublicClasses from './pages/PublicClasses';
 
 import WorkoutPlans from './pages/WorkoutPlans';
 import DietPlans from './pages/DietPlans';
@@ -49,6 +50,7 @@ function App() {
           <Route path="/store/:id" element={<PublicProduct />} />
           <Route path="/events" element={<PublicEvent />} />
           <Route path="/events/:id" element={<PublicEventDetails />} />
+          <Route path="/public-classes" element={<PublicClasses />} />
 
           <Route path="/workout-plans" element={<WorkoutPlans />} />
           <Route path="/diet-plans" element={<DietPlans />} />
