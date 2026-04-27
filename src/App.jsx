@@ -14,14 +14,19 @@ import PublicShop from './pages/PublicShop';
 import PublicProduct from './pages/PublicProduct';
 import PublicEvent from './pages/PublicEvent';
 import PublicEventDetails from './pages/PublicEventDetails';
+import PublicClasses from './pages/PublicClasses';
 
 import WorkoutPlans from './pages/WorkoutPlans';
 import DietPlans from './pages/DietPlans';
 import Progress from './pages/Progress';
 import Equipment from './pages/Equipment';
 import Classes from './pages/Classes';
+import AdminClass from './pages/AdminClass';
 import MemberReviews from './pages/MemberReviews';
 import AdminDietPlans from './pages/AdminDietPlans';
+import Membership from './pages/Membership';
+import Scanner from './pages/Scanner';
+import FingerPrintDisplay from './pages/FingerPrintDisplay';
 
 import { CartProvider } from './context/CartContext';
 import CartSidebar from './components/CartSidebar';
@@ -49,12 +54,16 @@ function App() {
           <Route path="/store/:id" element={<PublicProduct />} />
           <Route path="/events" element={<PublicEvent />} />
           <Route path="/events/:id" element={<PublicEventDetails />} />
+          <Route path="/public-classes" element={<PublicClasses />} />
 
           <Route path="/workout-plans" element={<WorkoutPlans />} />
           <Route path="/diet-plans" element={<DietPlans />} />
           <Route path="/progress" element={<Progress />} />
           <Route path="/classes" element={<Classes />} />
           <Route path="/reviews" element={<MemberReviews />} />
+          <Route path="/membership" element={<Membership />} />
+          <Route path="/scanner" element={<Scanner />} />
+          <Route path="/fingerPrint" element={<FingerPrintDisplay />} />
 
           {/* Admin Protected */}
           <Route path="/dashboard" element={<AdminRoute><Dashboard /></AdminRoute>} />
@@ -65,6 +74,7 @@ function App() {
           <Route path="/event" element={<AdminRoute><Event /></AdminRoute>} />
           <Route path="/equipment" element={<AdminRoute><Equipment /></AdminRoute>} />
           <Route path="/admin-diet-plans" element={<AdminRoute><AdminDietPlans /></AdminRoute>} />
+          <Route path="/class" element={<AdminRoute><AdminClass /></AdminRoute>} />
         </Routes>
 
       </Router>

@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import Sidebar from '../components/Sidebar';
 import RegisterModal from '../components/RegisterModal';
-import { Search, Edit2, Trash2, UserPlus } from 'lucide-react';
+import MemberRosterModal from '../components/MemberRosterModal';
+import { Search, Edit2, Trash2, UserPlus, Printer } from 'lucide-react';
 
 const Members = () => {
   const [members, setMembers] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showRosterModal, setShowRosterModal] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -39,17 +41,25 @@ const Members = () => {
       */}
       <main className="flex-1 min-w-0 w-full p-4 sm:p-6 lg:p-12 lg:ml-64 pt-24 lg:pt-12 overflow-x-hidden">
         
-        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-6 mb-8 w-full">
+        <header className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 md:gap-6 mb-8 w-full">
           <div className="w-full">
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-black uppercase tracking-tighter italic leading-tight">Member Directory</h1>
             <p className="text-gray-500 mt-1 font-bold text-[10px] uppercase tracking-widest">Manage memberships</p>
           </div>
-          <button 
-            onClick={() => { setSelectedMember(null); setIsModalOpen(true); }} 
-            className="w-full md:w-auto flex-shrink-0 flex items-center justify-center bg-red-600 hover:bg-red-700 px-6 py-4 rounded-2xl font-black uppercase text-xs tracking-widest shadow-2xl transition-all active:scale-95"
-          >
-            <UserPlus size={18} className="mr-2" /> Register Member
-          </button>
+          <div className="w-full xl:w-auto flex flex-row flex-wrap items-center gap-4 mt-4 xl:mt-0 justify-start xl:justify-end">
+            <button 
+              onClick={() => setShowRosterModal(true)} 
+              className="flex-1 sm:flex-none flex items-center justify-center bg-[#111] hover:bg-red-900/20 text-red-500 border border-red-900/30 px-6 py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all active:scale-95 whitespace-nowrap"
+            >
+              <Printer size={16} className="mr-2" /> Print Roster
+            </button>
+            <button 
+              onClick={() => { setSelectedMember(null); setIsModalOpen(true); }} 
+              className="flex-1 sm:flex-none flex items-center justify-center bg-red-600 hover:bg-red-700 px-6 py-4 rounded-2xl font-black uppercase text-[10px] sm:text-xs tracking-widest shadow-2xl transition-all active:scale-95 whitespace-nowrap"
+            >
+              <UserPlus size={18} className="mr-2" /> Register Member
+            </button>
+          </div>
         </header>
 
         <div className="bg-[#111] border border-gray-900 rounded-2xl flex items-center px-4 mb-8 focus-within:border-red-600 transition-colors w-full">
@@ -85,7 +95,17 @@ const Members = () => {
                       <p className="text-gray-600 text-[10px] font-bold truncate max-w-[150px] sm:max-w-[250px]">{m.email}</p>
                     </td>
                     <td className="p-4 sm:p-6 text-gray-400 text-xs font-black tracking-widest">{m.nic}</td>
-                    <td className="p-4 sm:p-6 text-[10px] text-gray-500 uppercase font-black whitespace-nowrap">{m.membershipType}</td>
+                    <td className="p-4 sm:p-6 text-[10px] font-black whitespace-nowrap">
+                      {m.membershipType ? (
+                        <span className="px-3 py-1.5 bg-red-900/10 text-red-500 border border-red-900/20 rounded-lg uppercase tracking-widest">
+                          {m.membershipType}
+                        </span>
+                      ) : (
+                        <span className="px-3 py-1.5 bg-gray-900/30 text-gray-500 border border-gray-800 rounded-lg uppercase tracking-widest">
+                          Unassigned
+                        </span>
+                      )}
+                    </td>
                     <td className="p-4 sm:p-6 text-right space-x-2 sm:space-x-4 whitespace-nowrap">
                       <button onClick={() => { setSelectedMember(m); setIsModalOpen(true); }} className="text-gray-600 hover:text-white transition-colors p-2"><Edit2 size={16}/></button>
                       <button onClick={() => deleteMember(m._id)} className="text-gray-600 hover:text-red-600 transition-colors p-2"><Trash2 size={16}/></button>
@@ -99,6 +119,13 @@ const Members = () => {
       </main>
       
       {isModalOpen && <RegisterModal close={() => setIsModalOpen(false)} refresh={fetchMembers} member={selectedMember} />}
+      
+      {showRosterModal && (
+        <MemberRosterModal 
+          members={members} 
+          onClose={() => setShowRosterModal(false)} 
+        />
+      )}
     </div>
   );
 };

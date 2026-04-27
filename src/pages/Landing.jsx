@@ -1,8 +1,22 @@
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Link } from 'react-router-dom';
-import { Dumbbell, Users, ShoppingBag, Instagram, Globe, Twitter } from 'lucide-react';
+import { Dumbbell, Users, ShoppingBag, Instagram, Globe, Twitter, ArrowRight, Calendar } from 'lucide-react';
 import PublicNavbar from '../components/PublicNavbar';
+import PromotionBanner from '../components/PromotionBanner';
 
 const Landing = () => {
+  const [news, setNews] = useState([]);
+
+  useEffect(() => {
+    const fetchNews = async () => {
+      try {
+        const res = await axios.get('https://rc-fitness-backend.vercel.app/api/events/announcements/all');
+        setNews(res.data.slice(0, 3)); // Show only latest 3
+      } catch (err) { console.error("Error fetching news:", err); }
+    };
+    fetchNews();
+  }, []);
 
   return (
     <div className="bg-black text-white font-sans selection:bg-red-600">
@@ -11,7 +25,7 @@ const Landing = () => {
 
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 hover:scale-105"
           style={{ backgroundImage: "url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=2070&auto=format&fit=crop')" }}
         >
@@ -32,6 +46,8 @@ const Landing = () => {
         </div>
       </section>
 
+      <PromotionBanner />
+
       {/* Features Section */}
       <section className="py-24 px-6 max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-16">
@@ -45,23 +61,60 @@ const Landing = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <FeatureCard 
-            icon={<Dumbbell className="text-red-600" size={32} />} 
+          <FeatureCard
+            icon={<Dumbbell className="text-red-600" size={32} />}
             title="State-of-the-art Equipment"
             desc="Access the latest Hammer Strength resistance machines and Life Fitness cardio equipment."
           />
-          <FeatureCard 
-            icon={<Users className="text-red-600" size={32} />} 
+          <FeatureCard
+            icon={<Users className="text-red-600" size={32} />}
             title="Expert Trainers"
             desc="Work 1-on-1 with certified professionals who build custom periodization plans for you."
           />
-          <FeatureCard 
-            icon={<ShoppingBag className="text-red-600" size={32} />} 
+          <FeatureCard
+            icon={<ShoppingBag className="text-red-600" size={32} />}
             title="Supplement Store"
             desc="Fuel your body with high-quality whey, creatine, and pre-workouts available right here."
           />
         </div>
       </section>
+
+      {/* Latest News Section */}
+      {news.length > 0 && (
+        <section className="py-24 bg-[#050505] border-y border-white/5">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="flex justify-between items-end mb-12">
+              <div>
+                <p className="text-red-600 font-bold uppercase tracking-widest text-[10px] mb-2">Internal Updates</p>
+                <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter italic">Latest <span className="text-white/40">News</span></h2>
+              </div>
+              <Link to="/events" className="text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-white flex items-center gap-2 group transition-colors">
+                View All Announcements <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {news.map(item => (
+                <div key={item._id} className="group">
+                  <div className="bg-[#111] p-8 border border-white/5 hover:border-red-600/30 transition-all duration-500 h-full flex flex-col">
+                    <div className="flex items-center gap-3 mb-6">
+                      <span className="px-3 py-1 bg-red-950/30 text-red-500 border border-red-900/40 text-[9px] font-black uppercase tracking-widest rounded-full">{item.category}</span>
+                      <span className="text-gray-600 font-bold text-[10px] uppercase tracking-widest flex items-center gap-1">
+                        <Calendar size={12} /> {new Date(item.date).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <h3 className="text-xl font-black uppercase tracking-tight italic mb-4 leading-tight group-hover:text-red-600 transition-colors">{item.title}</h3>
+                    <p className="text-gray-500 text-sm leading-relaxed mb-8 flex-1">{item.content.substring(0, 120)}...</p>
+                    <Link to="/events" className="text-xs font-black uppercase tracking-widest text-white flex items-center gap-2 group/btn">
+                      Read Story <ArrowRight size={14} className="group-hover/btn:translate-x-1 transition-transform text-red-600" />
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Quote Banner */}
       <section className="bg-red-600 py-16 px-6 text-center">

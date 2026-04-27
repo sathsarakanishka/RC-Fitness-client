@@ -135,7 +135,7 @@ const AssignDietModal = ({ isOpen, onClose, memberId, memberName = 'Member', exi
           <button 
             onClick={handleAssignPlan}
             disabled={isSubmitting}
-            className={`px-6 py-2.5 rounded-xl text-white text-xs font-bold uppercase tracking-widest flex items-center gap-2 shadow-[0_0_15px_rgba(239,68,68,0.3)] transition-all ${isSubmitting ? 'bg-red-800 cursor-not-allowed' : 'bg-red-500 hover:bg-red-600'}`}
+            className={px-6 py-2.5 rounded-xl text-white text-xs font-bold uppercase tracking-widest flex items-center gap-2 shadow-[0_0_15px_rgba(239,68,68,0.3)] transition-all ${isSubmitting ? 'bg-red-800 cursor-not-allowed' : 'bg-red-500 hover:bg-red-600'}}
           >
             <Save size={16} /> {isSubmitting ? 'Saving...' : existingPlan ? 'Update Plan' : 'Assign Plan'}
           </button>

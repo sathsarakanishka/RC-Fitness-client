@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import Sidebar from '../components/Sidebar';
 import StaffModal from '../components/StaffModal';
-import { Search, UserPlus, Edit2, Trash2, Clock, Star } from 'lucide-react';
+import StaffDirectoryModal from '../components/StaffDirectoryModal';
+import { Search, UserPlus, Edit2, Trash2, Clock, Star, Printer } from 'lucide-react';
 
 const Staff = () => {
   const [staff, setStaff] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showDirectoryModal, setShowDirectoryModal] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState(null);
 
   const fetchStaff = async () => {
@@ -36,9 +38,20 @@ const Staff = () => {
             <h1 className="text-4xl font-black uppercase tracking-tighter italic leading-none">Staff Management</h1>
             <p className="text-gray-500 text-[10px] font-bold uppercase tracking-[0.3em] mt-2">Trainers & Attendance</p>
           </div>
-          <button onClick={() => { setSelectedStaff(null); setIsModalOpen(true); }} className="w-full lg:w-auto bg-red-600 hover:bg-red-700 px-8 py-4 rounded-2xl font-black uppercase text-xs tracking-widest shadow-2xl transition-all active:scale-95">
-            <UserPlus size={16} className="inline mr-2" /> Add Trainer
-          </button>
+          <div className="w-full lg:w-auto flex flex-col sm:flex-row items-center gap-4 mt-4 lg:mt-0">
+            <button 
+              onClick={() => setShowDirectoryModal(true)} 
+              className="w-full sm:w-auto flex-shrink-0 flex items-center justify-center bg-[#111] hover:bg-red-900/20 text-red-500 border border-red-900/30 px-6 py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all active:scale-95"
+            >
+              <Printer size={16} className="mr-2" /> Print Directory
+            </button>
+            <button 
+              onClick={() => { setSelectedStaff(null); setIsModalOpen(true); }} 
+              className="w-full sm:w-auto flex-shrink-0 flex items-center justify-center bg-red-600 hover:bg-red-700 px-6 py-4 rounded-2xl font-black uppercase text-xs tracking-widest shadow-2xl transition-all active:scale-95"
+            >
+              <UserPlus size={16} className="mr-2" /> Add Trainer
+            </button>
+          </div>
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
@@ -54,7 +67,7 @@ const Staff = () => {
                <div className="mb-6 flex flex-col items-center text-center">
                  <div className="w-16 h-16 bg-red-600/10 rounded-2xl flex items-center justify-center text-red-500 font-black text-2xl mb-4 border border-red-900/20 uppercase">{s.fullName[0]}</div>
                  <h3 className="font-black text-lg uppercase leading-tight italic">{s.fullName}</h3>
-                 <p className="text-red-600 text-[9px] font-bold mt-1 tracking-widest uppercase">{s.shift}</p>
+                 <p className="text-red-600 text-[9px] font-bold mt-1 tracking-widest uppercase">{s.jobRole || s.shift}</p>
                  <p className="text-gray-500 text-[9px] mt-1 font-bold">{s.email}</p>
                </div>
                <div className="pt-4 border-t border-gray-900 flex justify-between items-center text-[10px] font-bold uppercase text-gray-500">
@@ -70,6 +83,13 @@ const Staff = () => {
         </div>
       </main>
       {isModalOpen && <StaffModal close={() => setIsModalOpen(false)} refresh={fetchStaff} staffMember={selectedStaff} />}
+      
+      {showDirectoryModal && (
+        <StaffDirectoryModal 
+          staff={staff} 
+          onClose={() => setShowDirectoryModal(false)} 
+        />
+      )}
     </div>
   );
 };

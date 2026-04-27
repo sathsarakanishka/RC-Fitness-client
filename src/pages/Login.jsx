@@ -15,7 +15,7 @@ function Login() {
     e.preventDefault();
     setError('');
     setLoading(true);
-    
+
     try {
       const res = await axios.post('https://rc-fitness-backend.vercel.app/api/user/login', { email, password });
 
@@ -28,7 +28,7 @@ function Login() {
       } else {
         navigate('/profile');
       }
-      
+
     } catch (err) {
       setError(err.response?.data || 'Login Failed. Check credentials.');
     } finally {
@@ -37,7 +37,7 @@ function Login() {
   };
 
   return (
-    <div 
+    <div
       className="flex items-center justify-center h-screen font-sans bg-cover bg-center relative"
       style={{ backgroundImage: "url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=2070&auto=format&fit=crop')" }}
     >
@@ -47,26 +47,26 @@ function Login() {
       <form onSubmit={handleLogin} className="relative bg-black/60 p-10 rounded-3xl border border-gray-800 w-[400px] shadow-2xl backdrop-blur-md">
         <h1 className="text-4xl font-black text-red-600 text-center uppercase tracking-tighter mb-2 italic">RC FITNESS</h1>
         <p className="text-gray-400 text-center text-[10px] mb-8 tracking-[0.3em] uppercase font-bold">Secure Access Portal</p>
-        
+
         {error && <div className="bg-red-900/40 border border-red-600 text-red-200 p-3 rounded-lg text-xs text-center mb-6 font-medium">{error}</div>}
-        
+
         <div className="space-y-5">
           <div className="flex flex-col gap-1.5">
             <label className="text-[10px] text-gray-400 uppercase font-bold ml-1 tracking-widest">Email Address</label>
             <input type="email" required className="w-full p-4 bg-black/50 border border-gray-700 rounded-xl focus:border-red-600 outline-none transition-all text-sm text-white" onChange={(e) => setEmail(e.target.value)} />
           </div>
-          
+
           <div className="flex flex-col gap-1.5 relative">
             <label className="text-[10px] text-gray-400 uppercase font-bold ml-1 tracking-widest">Password</label>
             <div className="relative">
-              <input 
-                type={showPassword ? "text" : "password"} 
-                required 
-                className="w-full p-4 bg-black/50 border border-gray-700 rounded-xl focus:border-red-600 outline-none transition-all text-sm text-white pr-12" 
-                onChange={(e) => setPassword(e.target.value)} 
+              <input
+                type={showPassword ? "text" : "password"}
+                required
+                className="w-full p-4 bg-black/50 border border-gray-700 rounded-xl focus:border-red-600 outline-none transition-all text-sm text-white pr-12"
+                onChange={(e) => setPassword(e.target.value)}
               />
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
               >
