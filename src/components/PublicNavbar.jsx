@@ -12,7 +12,7 @@ const PublicNavbar = () => {
 
   const navItems = [
     { name: 'Home', path: '/' },
-    { name: 'Classes', path: '/classes' },
+    { name: 'Classes', path: '/public-classes' },
     { name: 'Events', path: '/events' },
     { name: 'Store', path: '/store' },
     { name: 'Membership', path: '/membership' }
