@@ -23,6 +23,8 @@ import Classes from './pages/Classes';
 import AdminClass from './pages/AdminClass';
 import MemberReviews from './pages/MemberReviews';
 import Membership from './pages/Membership';
+import Scanner from './pages/Scanner';
+import FingerPrintDisplay from './pages/FingerPrintDisplay';
 
 import { CartProvider } from './context/CartContext';
 import CartSidebar from './components/CartSidebar';
@@ -57,6 +59,8 @@ function App() {
           <Route path="/classes" element={<Classes />} />
           <Route path="/reviews" element={<MemberReviews />} />
           <Route path="/membership" element={<Membership />} />
+          <Route path="/scanner" element={<Scanner />} />
+          <Route path="/fingerPrint" element={<FingerPrintDisplay />} />
 
           {/* Admin Protected */}
           <Route path="/dashboard" element={<AdminRoute><Dashboard /></AdminRoute>} />
