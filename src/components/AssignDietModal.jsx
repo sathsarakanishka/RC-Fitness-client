@@ -14,10 +14,10 @@ const AssignDietModal = ({ isOpen, onClose, memberName = 'SARAH CONNOR (#RC-8842
       alert("Please select a goal and enter diet details.");
       return;
     }
-    
+
     setIsSubmitting(true);
     try {
-      await axios.post('http://localhost:5000/api/diet/assign', {
+      await axios.post('https://rc-fitness-backend.vercel.app/api/diet/assign', {
         memberName,
         goal,
         dietDetails
@@ -35,14 +35,14 @@ const AssignDietModal = ({ isOpen, onClose, memberName = 'SARAH CONNOR (#RC-8842
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-black/80 backdrop-blur-sm"
         onClick={onClose}
       ></div>
 
       {/* Modal Container */}
       <div className="relative w-full max-w-2xl bg-[#0d0a0a] rounded-2xl shadow-[0_0_50px_rgba(239,68,68,0.15)] border border-red-500/80 overflow-hidden text-white animate-in fade-in zoom-in-95 duration-200">
-        
+
         {/* Header */}
         <div className="flex justify-between items-start p-6 border-b border-red-900/40 bg-gradient-to-r from-red-950/20 to-transparent">
           <div>
@@ -54,7 +54,7 @@ const AssignDietModal = ({ isOpen, onClose, memberName = 'SARAH CONNOR (#RC-8842
               Member: {memberName}
             </p>
           </div>
-          <button 
+          <button
             onClick={onClose}
             className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
           >
@@ -64,12 +64,12 @@ const AssignDietModal = ({ isOpen, onClose, memberName = 'SARAH CONNOR (#RC-8842
 
         {/* Content */}
         <div className="p-6 md:p-8 space-y-8">
-          
+
           {/* Goal Selector */}
           <div className="space-y-3">
             <label className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Select Diet Goal</label>
             <div className="relative">
-              <select 
+              <select
                 value={goal}
                 onChange={(e) => setGoal(e.target.value)}
                 className="w-full bg-[#151111] border border-red-900/30 text-gray-300 text-sm rounded-xl p-4 appearance-none outline-none focus:border-red-500/50 focus:ring-1 focus:ring-red-500/50 transition-all font-light tracking-wide"
@@ -80,7 +80,7 @@ const AssignDietModal = ({ isOpen, onClose, memberName = 'SARAH CONNOR (#RC-8842
                 <option value="muscle_gain">Muscle Gain (Surplus)</option>
               </select>
               <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-red-500/70">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
               </div>
             </div>
           </div>
@@ -88,7 +88,7 @@ const AssignDietModal = ({ isOpen, onClose, memberName = 'SARAH CONNOR (#RC-8842
           {/* Details Textarea */}
           <div className="space-y-3">
             <label className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Enter Diet Plan Details</label>
-            <textarea 
+            <textarea
               rows={8}
               value={dietDetails}
               onChange={(e) => setDietDetails(e.target.value)}
@@ -111,14 +111,14 @@ const AssignDietModal = ({ isOpen, onClose, memberName = 'SARAH CONNOR (#RC-8842
 
         {/* Footer Actions */}
         <div className="p-6 border-t border-red-900/40 bg-[#0a0808] flex justify-end gap-4">
-          <button 
+          <button
             onClick={onClose}
             disabled={isSubmitting}
             className="px-6 py-2.5 rounded-xl border border-white/10 text-gray-300 text-xs font-bold uppercase tracking-widest hover:bg-white/5 transition-colors"
           >
             Cancel
           </button>
-          <button 
+          <button
             onClick={handleAssignPlan}
             disabled={isSubmitting}
             className={`px-6 py-2.5 rounded-xl text-white text-xs font-bold uppercase tracking-widest flex items-center gap-2 shadow-[0_0_15px_rgba(239,68,68,0.3)] transition-all ${isSubmitting ? 'bg-red-800 cursor-not-allowed' : 'bg-red-500 hover:bg-red-600'}`}

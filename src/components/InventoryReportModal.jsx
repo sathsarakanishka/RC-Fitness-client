@@ -43,7 +43,7 @@ const InventoryReportModal = ({ products, onClose }) => {
             
             <div className="flex justify-between items-start border-b-2 border-gray-200 pb-8 mb-8">
               <div>
-                <h1 className="text-4xl font-black italic tracking-tighter text-purple-600">RC FITNESS <span className="text-black">SHOP</span></h1>
+                <h1 className="text-4xl font-black italic tracking-tighter text-red-600">RC FITNESS <span className="text-black">SHOP</span></h1>
                 <p className="text-gray-500 text-sm mt-2 font-medium">Official Equipment & Supplement Store</p>
                 <p className="text-gray-500 text-sm font-medium">Phone: +94 112 345 678</p>
               </div>
@@ -65,7 +65,7 @@ const InventoryReportModal = ({ products, onClose }) => {
               </div>
               <div>
                 <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Total Est. Value</h3>
-                <p className="text-2xl font-black text-purple-600">LKR {totalValue.toLocaleString()}</p>
+                <p className="text-2xl font-black text-red-600">LKR {totalValue.toLocaleString()}</p>
               </div>
             </div>
 
@@ -122,7 +122,7 @@ const InventoryReportModal = ({ products, onClose }) => {
           </button>
           <button
             onClick={() => window.print()}
-            className="px-6 py-2.5 rounded-xl font-bold text-sm bg-purple-600 text-white hover:bg-purple-700 transition-colors shadow-lg shadow-purple-600/20 flex items-center gap-2 cursor-pointer"
+            className="px-6 py-2.5 rounded-xl font-bold text-sm bg-red-600 text-white hover:bg-red-700 transition-colors shadow-lg shadow-red-600/20 flex items-center gap-2 cursor-pointer"
           >
             <Printer size={16} /> Print Document
           </button>

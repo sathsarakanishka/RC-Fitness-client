@@ -12,11 +12,10 @@ const Sidebar = () => {
     { name: 'Members', icon: <Users size={20}/>, path: '/members' },
     { name: 'Staff', icon: <UserCheck size={20}/>, path: '/staff' },
     { name: 'Finances', icon: <CreditCard size={20}/>, path: '/finances' },
-    { name: 'Equipment', icon: <Dumbbell size={20}/>, path: '/equipment' },
     { name: 'Shop', icon: <ShoppingBag size={20}/>, path: '/shop' },
     { name: 'Event', icon: <Calendar size={20}/>, path: '/event' },
-    { name: 'Class', icon:<BicepsFlexed size={20}/>, path: '/class'},
-    { name: 'Settings', icon: <Settings size={20}/>, path: '/settings' },
+    { name: 'Equipment', icon: <Dumbbell size={20}/>, path: '/equipment' },
+    { name: 'Classes', icon: <BicepsFlexed size={20}/>, path: '/class' }
   ];
 
   const handleLogout = () => {

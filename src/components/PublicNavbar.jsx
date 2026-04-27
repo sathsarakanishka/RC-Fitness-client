@@ -15,7 +15,7 @@ const PublicNavbar = () => {
     { name: 'Classes', path: '/public-classes' },
     { name: 'Events', path: '/events' },
     { name: 'Store', path: '/store' },
-    { name: 'Membership', path: '#' }
+    { name: 'Membership', path: '/membership' }
   ];
 
   return (

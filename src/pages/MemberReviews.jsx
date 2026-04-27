@@ -9,6 +9,13 @@ const MemberReviews = () => {
   const [imageBase64, setImageBase64] = useState('');
   const [reviewsList, setReviewsList] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [notification, setNotification] = useState(null);
+
+  const showNotification = (msg, type = 'success') => {
+    setNotification({ msg, type });
+    setTimeout(() => setNotification(null), 3000);
+  };
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -17,7 +24,10 @@ const MemberReviews = () => {
 
   const fetchReviews = async () => {
     try {
-      const { data } = await axios.get('http://localhost:5000/api/reviews');
+      const token = localStorage.getItem('authToken');
+      const { data } = await axios.get('https://rc-fitness-backend.vercel.app/api/reviews', {
+        headers: { 'auth-token': token }
+      });
       setReviewsList(data);
     } catch (err) {
       console.error(err);
@@ -37,34 +47,53 @@ const MemberReviews = () => {
 
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this review?")) return;
+    setLoading(true);
     try {
-      await axios.delete(`http://localhost:5000/api/reviews/${id}`);
+      const token = localStorage.getItem('authToken');
+      await axios.delete(`https://rc-fitness-backend.vercel.app/api/reviews/${id}`, {
+        headers: { 'auth-token': token }
+      });
+      showNotification('Review deleted successfully');
       fetchReviews();
     } catch (err) {
       console.error(err);
-      alert("Failed to delete review.");
+      showNotification("Failed to delete review.", 'error');
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleSubmit = async () => {
-    if (!story) return alert("Please write your story.");
+    if (!story) {
+      showNotification("Please write your story.", 'error');
+      return;
+    }
     setIsSubmitting(true);
     try {
-      await axios.post('http://localhost:5000/api/reviews', {
-        name: 'Logged In Member', // In a real app, this comes from auth context
-        membershipDuration: 'MEMBER FOR 2 MONTHS',
+      const token = localStorage.getItem('authToken');
+      // Fetch profile to get real name/membership duration
+      const profileRes = await axios.get('https://rc-fitness-backend.vercel.app/api/user/me', {
+        headers: { 'auth-token': token }
+      });
+      
+      await axios.post('https://rc-fitness-backend.vercel.app/api/reviews', {
+        name: profileRes.data.fullName,
+        membershipDuration: profileRes.data.membershipType,
         rating,
         story,
         imageBase64,
         dateString: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }).toUpperCase()
+      }, {
+        headers: { 'auth-token': token }
       });
+      showNotification('Review submitted successfully! Thank you for sharing.');
       setStory('');
       setRating(5);
       setImageBase64('');
       fetchReviews();
     } catch (err) {
       console.error(err);
-      alert("Failed to submit review.");
+      showNotification(err.response?.data?.message || "Failed to submit review.", 'error');
     } finally {
       setIsSubmitting(false);
     }
@@ -74,9 +103,19 @@ const MemberReviews = () => {
     <div className="flex bg-[#0d0a0a] min-h-screen text-white font-sans">
       <MemberSidebar />
       <div className="flex-1 p-6 lg:p-10 lg:ml-64 relative overflow-hidden">
-        
+
+        {/* Notification Toast */}
+        {notification && (
+          <div className={`fixed top-6 right-6 z-[100] px-6 py-3 rounded-xl border animate-in slide-in-from-right duration-300 shadow-lg flex items-center gap-3 ${
+            notification.type === 'error' ? 'bg-red-950/90 border-red-500 text-white' : 'bg-[#151111]/90 border-red-500/50 text-white'
+          }`}>
+            <div className={`w-2 h-2 rounded-full ${notification.type === 'error' ? 'bg-red-500' : 'bg-green-500'}`}></div>
+            <span className="text-[10px] font-bold uppercase tracking-widest">{notification.msg}</span>
+          </div>
+        )}
+
         <div className="max-w-7xl mx-auto pt-16 lg:pt-0 relative z-10">
-          
+
           {/* Header */}
           <header className="mb-12">
             <h1 className="text-4xl md:text-5xl font-light uppercase tracking-tight text-white mb-2">Member Reviews</h1>
@@ -89,23 +128,23 @@ const MemberReviews = () => {
               <Megaphone size={20} className="text-red-500" />
               <h2 className="text-xl font-bold tracking-wide text-white">Share Your Transformation</h2>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10 relative z-10">
-              
+
               {/* Left Column: Rating & Story */}
               <div className="space-y-6">
                 <div>
                   <label className="block text-[10px] font-bold text-gray-500 tracking-widest uppercase mb-3">Overall Rating</label>
                   <div className="flex items-center gap-2">
                     {[1, 2, 3, 4, 5].map((star) => (
-                      <button 
-                        key={star} 
+                      <button
+                        key={star}
                         onClick={() => setRating(star)}
                         className="transition-transform hover:scale-110 focus:outline-none"
                       >
-                        <Star 
-                          size={24} 
-                          className={star <= rating ? "fill-red-500 text-red-500 shadow-sm" : "text-gray-600"} 
+                        <Star
+                          size={24}
+                          className={star <= rating ? "fill-red-500 text-red-500 shadow-sm" : "text-gray-600"}
                         />
                       </button>
                     ))}
@@ -114,7 +153,7 @@ const MemberReviews = () => {
 
                 <div>
                   <label className="block text-[10px] font-bold text-gray-500 tracking-widest uppercase mb-3">Your Story</label>
-                  <textarea 
+                  <textarea
                     rows={6}
                     value={story}
                     onChange={e => setStory(e.target.value)}
@@ -128,7 +167,7 @@ const MemberReviews = () => {
               <div className="flex flex-col h-full">
                 <label className="block text-[10px] font-bold text-gray-500 tracking-widest uppercase mb-3">Transformation Photos</label>
                 <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/png, image/jpeg" />
-                <div 
+                <div
                   onClick={() => fileInputRef.current.click()}
                   className="flex-1 border-2 border-dashed border-red-900/30 bg-[#151111] rounded-2xl flex flex-col items-center justify-center p-8 hover:border-red-500/50 hover:bg-red-500/5 transition-colors cursor-pointer group overflow-hidden relative"
                 >
@@ -158,9 +197,9 @@ const MemberReviews = () => {
 
             {/* Submit Button */}
             <div className="mt-8 flex justify-end relative z-10">
-               <button onClick={handleSubmit} disabled={isSubmitting} className="bg-red-500 hover:bg-red-600 text-white px-8 py-3.5 rounded-lg text-[10px] font-bold tracking-widest uppercase transition-all shadow-[0_4px_15px_rgba(239,68,68,0.2)] disabled:opacity-50">
-                  {isSubmitting ? 'Submitting...' : 'Submit Review'}
-               </button>
+              <button onClick={handleSubmit} disabled={isSubmitting} className="bg-red-500 hover:bg-red-600 text-white px-8 py-3.5 rounded-lg text-[10px] font-bold tracking-widest uppercase transition-all shadow-[0_4px_15px_rgba(239,68,68,0.2)] disabled:opacity-50">
+                {isSubmitting ? 'Submitting...' : 'Submit Review'}
+              </button>
             </div>
           </div>
 
@@ -181,7 +220,7 @@ const MemberReviews = () => {
                 <div className="h-48 overflow-hidden bg-[#151111]">
                   <img src={rev.imageBase64 || 'https://images.unsplash.com/photo-1548690312-e3b507d8c110?q=80&w=2000&auto=format&fit=crop'} alt={rev.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-80 mix-blend-luminosity" />
                 </div>
-                
+
                 {/* Content */}
                 <div className="p-6 flex-1 flex flex-col">
                   {/* Rating Header */}
@@ -209,7 +248,7 @@ const MemberReviews = () => {
                       <button className="text-red-500 text-[10px] font-bold uppercase tracking-widest hover:text-red-400 transition-colors">
                         Read Story
                       </button>
-                      <button onClick={() => handleDelete(rev._id)} className="text-gray-600 hover:text-red-500 transition-colors" title="Delete Review">
+                      <button onClick={() => handleDelete(rev._id)} disabled={loading} className="text-gray-600 hover:text-red-500 disabled:opacity-30 transition-colors" title="Delete Review">
                         <Trash2 size={14} />
                       </button>
                     </div>

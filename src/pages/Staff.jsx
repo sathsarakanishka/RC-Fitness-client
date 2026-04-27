@@ -67,7 +67,7 @@ const Staff = () => {
                <div className="mb-6 flex flex-col items-center text-center">
                  <div className="w-16 h-16 bg-red-600/10 rounded-2xl flex items-center justify-center text-red-500 font-black text-2xl mb-4 border border-red-900/20 uppercase">{s.fullName[0]}</div>
                  <h3 className="font-black text-lg uppercase leading-tight italic">{s.fullName}</h3>
-                 <p className="text-red-600 text-[9px] font-bold mt-1 tracking-widest uppercase">{s.shift}</p>
+                 <p className="text-red-600 text-[9px] font-bold mt-1 tracking-widest uppercase">{s.jobRole || s.shift}</p>
                  <p className="text-gray-500 text-[9px] mt-1 font-bold">{s.email}</p>
                </div>
                <div className="pt-4 border-t border-gray-900 flex justify-between items-center text-[10px] font-bold uppercase text-gray-500">

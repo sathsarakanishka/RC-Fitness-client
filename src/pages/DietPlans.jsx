@@ -1,45 +1,49 @@
+import { useState, useEffect } from 'react';
 import MemberSidebar from '../components/MemberSidebar';
 import { Download, Flame, MapPin } from 'lucide-react';
+import axios from 'axios';
 
 const DietPlans = () => {
-  const meals = [
-    {
-      id: 1,
-      time: '08:00 AM',
-      name: 'BREAKFAST',
-      items: ['4 Egg Whites, 1 whole Egg', '50g Rolled Oats with Blueberries', '1 Cup Black Coffee'],
-      cals: 450,
-      macros: { p: 32, c: 45, f: 12 },
-      macroPercents: { p: '70%', c: '60%', f: '40%' }
-    },
-    {
-      id: 2,
-      time: '01:00 PM',
-      name: 'LUNCH',
-      items: ['150g Grilled Chicken Breast', '100g Brown Rice', 'Steamed Broccoli & Asparagus'],
-      cals: 580,
-      macros: { p: 48, c: 62, f: 8 },
-      macroPercents: { p: '85%', c: '80%', f: '20%' }
-    },
-    {
-      id: 3,
-      time: '07:30 PM',
-      name: 'DINNER',
-      items: ['200g Baked Salmon Fillet', 'Large Green Salad with Olive Oil', '1/2 Avocado'],
-      cals: 520,
-      macros: { p: 38, c: 12, f: 28 },
-      macroPercents: { p: '75%', c: '20%', f: '85%' }
-    },
-    {
-      id: 4,
-      time: 'ANYTIME',
-      name: 'SNACKS',
-      items: ['1 Scoop Whey Protein with Water', 'A handful of Almonds (15-20)'],
-      cals: 300,
-      macros: { p: 28, c: 8, f: 18 },
-      macroPercents: { p: '60%', c: '15%', f: '65%' }
-    }
-  ];
+  const [meals, setMeals] = useState([]);
+  const [targetCals, setTargetCals] = useState(0);
+  const [goal, setGoal] = useState('Weight Loss');
+  const [coachNote, setCoachNote] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDietPlan = async () => {
+      try {
+        const token = localStorage.getItem('authToken');
+        const { data } = await axios.get('https://rc-fitness-backend.vercel.app/api/diet-plans/me', {
+          headers: { 'auth-token': token }
+        });
+        setMeals(data.meals);
+        setTargetCals(data.targetCalories);
+        setGoal(data.goal);
+        setCoachNote(data.coachNote);
+      } catch (err) {
+        console.error('No diet plan found or error fetching:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDietPlan();
+  }, []);
+
+  if (loading) return <div className="h-screen bg-black flex items-center justify-center text-red-600 font-bold animate-pulse uppercase tracking-widest">Initialising Nutrition Protocol...</div>;
+
+  if (meals.length === 0) return (
+    <div className="flex bg-[#0d0a0a] min-h-screen text-white">
+      <MemberSidebar />
+      <div className="flex-1 flex items-center justify-center p-12 lg:ml-64">
+        <div className="bg-[#111] border border-red-900/20 p-10 rounded-3xl text-center max-w-md">
+           <Flame size={48} className="text-red-900/50 mb-4 mx-auto" />
+           <h2 className="text-xl font-bold uppercase tracking-tight mb-2">No active diet plan</h2>
+           <p className="text-gray-500 text-sm">Your personalized nutrition protocol is currently being prepared by our coaches. Check back soon!</p>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="flex bg-[#0d0a0a] min-h-screen text-white">
@@ -59,7 +63,7 @@ const DietPlans = () => {
             
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-2 text-red-500/80">
-                <span className="text-sm font-bold uppercase tracking-widest">(Weight Loss)</span>
+                <span className="text-sm font-bold uppercase tracking-widest">({goal})</span>
                 <Flame size={18} className="fill-current" />
               </div>
               <button 
@@ -133,7 +137,7 @@ const DietPlans = () => {
                 </div>
 
                 <div className="text-center mb-12">
-                  <h2 className="text-5xl font-light text-gray-200 mb-1">1,850</h2>
+                  <h2 className="text-5xl font-light text-gray-200 mb-1">{targetCals?.toLocaleString()}</h2>
                   <p className="text-[10px] text-gray-600 font-bold uppercase tracking-widest">Target Kcal</p>
                 </div>
 
@@ -181,7 +185,7 @@ const DietPlans = () => {
                   <span>Coach's Note</span>
                 </div>
                 <p className="text-sm text-gray-400 font-medium leading-relaxed italic">
-                  "Stay hydrated. Aim for at least 3.5L of water today. If you're feeling low energy before the session, add 20g of extra carbs to your lunch."
+                  "{coachNote || "Stay focused on your goals. Proper nutrition is 70% of the battle."}"
                 </p>
               </div>
 
