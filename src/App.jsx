@@ -74,7 +74,6 @@ function App() {
           <Route path="/shop" element={<AdminRoute><Shop /></AdminRoute>} />
           <Route path="/event" element={<AdminRoute><Event /></AdminRoute>} />
           <Route path="/equipment" element={<AdminRoute><Equipment /></AdminRoute>} />
-          <Route path="/admin-diet-plans" element={<AdminRoute><AdminDietPlans /></AdminRoute>} />
           <Route path="/class" element={<AdminRoute><AdminClass /></AdminRoute>} />
           <Route path="/admin-workout-plans" element={<AdminRoute><AdminWorkoutPlans /></AdminRoute>} />
         </Routes>

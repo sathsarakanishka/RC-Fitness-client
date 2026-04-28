@@ -1,18 +1,14 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import MemberSidebar from '../components/MemberSidebar';
 import { Download, Flame, MapPin } from 'lucide-react';
+import axios from 'axios';
 
 const DietPlans = () => {
-
   const [meals, setMeals] = useState([]);
   const [targetCals, setTargetCals] = useState(0);
   const [goal, setGoal] = useState('Weight Loss');
   const [coachNote, setCoachNote] = useState('');
-  const [dietDetails, setDietDetails] = useState('');
   const [loading, setLoading] = useState(true);
-  const [requested, setRequested] = useState(false);
-  const [requesting, setRequesting] = useState(false);
 
   const fetchDietPlan = async () => {
     try {
@@ -22,24 +18,13 @@ const DietPlans = () => {
       // Fetch status first
       try {
         const token = localStorage.getItem('authToken');
-        
-        try {
-          const statusRes = await axios.get('http://localhost:5000/api/diet-plans/status', {
-            headers: { 'auth-token': token }
-          });
-          setRequested(statusRes.data.dietPlanRequested);
-        } catch (statusErr) {
-          console.error('Error fetching request status:', statusErr);
-        }
-
-        const { data } = await axios.get('http://localhost:5000/api/diet-plans/me', {
+        const { data } = await axios.get('https://rc-fitness-backend.vercel.app/api/diet-plans/me', {
           headers: { 'auth-token': token }
         });
-        setMeals(data.meals || []);
+        setMeals(data.meals);
         setTargetCals(data.targetCalories);
         setGoal(data.goal);
         setCoachNote(data.coachNote);
-        setDietDetails(data.dietDetails || '');
       } catch (err) {
         // No active plan, perfectly fine.
       }
@@ -56,54 +41,20 @@ const DietPlans = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const handleRequestPlan = async () => {
-    try {
-      setRequesting(true);
-      const token = localStorage.getItem('authToken');
-      await axios.post('http://localhost:5000/api/diet-plans/request', {}, {
-        headers: { 'auth-token': token }
-      });
-      setRequested(true);
-    } catch (err) {
-      console.error('Error requesting diet plan:', err);
-      alert('Failed to request diet plan.');
-    } finally {
-      setRequesting(false);
-    }
-  };
-
   if (loading) return <div className="h-screen bg-black flex items-center justify-center text-red-600 font-bold animate-pulse uppercase tracking-widest">Initialising Nutrition Protocol...</div>;
 
-  if (meals.length === 0 && !dietDetails) return (
+  if (meals.length === 0) return (
     <div className="flex bg-[#0d0a0a] min-h-screen text-white">
       <MemberSidebar />
       <div className="flex-1 flex items-center justify-center p-12 lg:ml-64">
         <div className="bg-[#111] border border-red-900/20 p-10 rounded-3xl text-center max-w-md">
            <Flame size={48} className="text-red-900/50 mb-4 mx-auto" />
            <h2 className="text-xl font-bold uppercase tracking-tight mb-2">No active diet plan</h2>
-           <p className="text-gray-500 text-sm mb-6">
-             {requested 
-               ? "Your personalized nutrition protocol is currently being prepared by our coaches. Check back soon!"
-               : "You don't have an active diet plan. Request one to get a personalized nutrition protocol from our coaches."
-             }
-           </p>
-           
-           <button 
-             onClick={handleRequestPlan}
-             disabled={requested || requesting}
-             className={`w-full py-3 rounded-xl font-bold uppercase tracking-widest transition-all ${
-               requested 
-                 ? 'bg-green-600/20 text-green-500 cursor-not-allowed border border-green-900/30' 
-                 : 'bg-red-600 hover:bg-red-700 text-white shadow-[0_0_20px_rgba(220,38,38,0.3)] hover:shadow-[0_0_30px_rgba(220,38,38,0.5)]'
-             }`}
-           >
-             {requesting ? 'Requesting...' : requested ? 'Plan Requested' : 'Request Diet Plan'}
-           </button>
+           <p className="text-gray-500 text-sm">Your personalized nutrition protocol is currently being prepared by our coaches. Check back soon!</p>
         </div>
       </div>
     </div>
   );
-
 
   return (
     <div className="flex bg-[#0d0a0a] min-h-screen text-white">
@@ -121,28 +72,17 @@ const DietPlans = () => {
               <p className="text-gray-500 text-sm tracking-wide uppercase font-bold text-[10px]">Fuel your performance. Master your nutrition.</p>
             </div>
             
-            <div className="flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-6">
               <div className="flex items-center gap-2 text-red-500/80">
-                <span className="text-sm font-bold uppercase tracking-widest">(Weight Loss)</span>
+                <span className="text-sm font-bold uppercase tracking-widest">({goal})</span>
                 <Flame size={18} className="fill-current" />
               </div>
               
 
 
               <button 
-                onClick={handleRequestPlan}
-                disabled={requested || requesting}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest transition-all ${
-                  requested 
-                    ? 'bg-green-600/20 text-green-500 cursor-not-allowed border border-green-900/30' 
-                    : 'bg-red-600 hover:bg-red-700 text-white shadow-[0_0_15px_rgba(220,38,38,0.3)]'
-                }`}
-              >
-                {requesting ? 'Requesting...' : requested ? 'Change Requested' : 'Request Change'}
-              </button>
-              <button 
                 onClick={() => window.print()}
-                className="flex items-center gap-2 border border-red-500 text-red-500 hover:bg-red-500 hover:text-white px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest transition-all"
+                className="flex items-center gap-3 border border-red-500 text-red-500 hover:bg-red-500 hover:text-white px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest transition-all"
               >
                 <Download size={16} /> Download PDF
               </button>
@@ -150,9 +90,9 @@ const DietPlans = () => {
           </div>
 
           <div className="flex flex-col xl:flex-row gap-8">
-            {/* Left Column: Meals or Diet Details */}
+            {/* Left Column: Meals */}
             <div className="flex-[2] space-y-6">
-              {meals.length > 0 ? meals.map((meal) => (
+              {meals.map((meal) => (
                 <div key={meal.id} className="bg-[#241c1c] rounded-2xl p-6 md:p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-lg shadow-black/20">
                   
                   {/* Meal Info */}
@@ -195,14 +135,7 @@ const DietPlans = () => {
                     </div>
                   </div>
                 </div>
-              )) : (
-                <div className="bg-[#241c1c] rounded-2xl p-8 shadow-lg shadow-black/20 border border-red-900/20">
-                  <h2 className="text-xl font-light tracking-wide text-red-500 mb-6 uppercase">Assigned Protocol</h2>
-                  <div className="whitespace-pre-wrap font-mono text-gray-300 text-sm leading-relaxed">
-                    {dietDetails}
-                  </div>
-                </div>
-              )}
+              ))}
             </div>
 
             {/* Right Column: Daily Macros Sidebar */}
@@ -218,7 +151,7 @@ const DietPlans = () => {
                 </div>
 
                 <div className="text-center mb-12">
-                  <h2 className="text-5xl font-light text-gray-200 mb-1">1,850</h2>
+                  <h2 className="text-5xl font-light text-gray-200 mb-1">{targetCals?.toLocaleString()}</h2>
                   <p className="text-[10px] text-gray-600 font-bold uppercase tracking-widest">Target Kcal</p>
                 </div>
 
@@ -266,7 +199,7 @@ const DietPlans = () => {
                   <span>Coach's Note</span>
                 </div>
                 <p className="text-sm text-gray-400 font-medium leading-relaxed italic">
-                  "Stay hydrated. Aim for at least 3.5L of water today. If you're feeling low energy before the session, add 20g of extra carbs to your lunch."
+                  "{coachNote || "Stay focused on your goals. Proper nutrition is 70% of the battle."}"
                 </p>
               </div>
 

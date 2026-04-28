@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
+import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell, BarChart, Bar, Legend } from 'recharts';
 import Sidebar from '../../components/Sidebar';
 import StatCard from '../../components/StatCard';
 
@@ -71,18 +72,66 @@ const Finances = () => {
   useEffect(() => { fetchFinanceData(); }, []);
 
   // --- CALCULATIONS ---
-  // Shop Revenue = sold out products (stock == 0)
-  const soldOutProducts = products.filter(p => p.stock === 0);
-  const shopRevenue = soldOutProducts.reduce((acc, p) => acc + (Number(p.price) || 0), 0);
-  const memberPaymentsIncome = payments.filter(p => p.status === 'Paid').reduce((acc, p) => acc + (Number(p.amount) || 0), 0);
+  const memberPaymentsIncome = useMemo(() => payments.filter(p => p.status === 'Paid').reduce((acc, p) => acc + (Number(p.amount) || 0), 0), [payments]);
+  const totalMemberPayments = useMemo(() => payments.reduce((acc, p) => acc + (Number(p.amount) || 0), 0), [payments]);
+  
+  const shopOrdersRevenue = useMemo(() => shopOrders.filter(o => o.status !== 'Cancelled').reduce((acc, o) => acc + (Number(o.totalAmount) || 0), 0), [shopOrders]);
 
-  const totalIncome = memberPaymentsIncome + shopRevenue;
-  const staffSalaries = staff.reduce((acc, s) => acc + (Number(s.salary) || 0), 0);
-  const recordedExpenses = expenses.reduce((acc, e) => acc + (Number(e.amount) || 0), 0);
-  const paidPayroll = payroll.filter(p => p.status === 'Paid').reduce((acc, p) => acc + (Number(p.amount) || 0), 0);
+  const recordedExpenses = useMemo(() => expenses.reduce((acc, e) => acc + (Number(e.amount) || 0), 0), [expenses]);
+  const paidPayroll = useMemo(() => payroll.filter(p => p.status === 'Paid').reduce((acc, p) => acc + (Number(p.amount) || 0), 0), [payroll]);
 
-  const totalOutgoing = paidPayroll + recordedExpenses;
-  const netProfit = totalIncome - totalOutgoing;
+  const totalExpenses = paidPayroll + recordedExpenses;
+  const netProfit = (memberPaymentsIncome + shopOrdersRevenue) - totalExpenses;
+
+  // --- CHART DATA PREPARATION ---
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  
+  const monthlyData = useMemo(() => {
+    const data = months.map(m => ({ name: m, income: 0, expenses: 0 }));
+    
+    payments.forEach(p => {
+      const month = new Date(p.date).getMonth();
+      if (p.status === 'Paid') data[month].income += Number(p.amount) || 0;
+    });
+
+    shopOrders.forEach(o => {
+      const month = new Date(o.createdAt).getMonth();
+      if (o.status !== 'Cancelled') data[month].income += Number(o.totalAmount) || 0;
+    });
+
+    expenses.forEach(e => {
+      const month = new Date(e.date).getMonth();
+      data[month].expenses += Number(e.amount) || 0;
+    });
+
+    payroll.forEach(p => {
+      const month = new Date(p.datePaid).getMonth();
+      if (p.status === 'Paid') data[month].expenses += Number(p.amount) || 0;
+    });
+
+    return data;
+  }, [payments, shopOrders, expenses, payroll]);
+
+  const expenseCategoryData = useMemo(() => {
+    const categories = {};
+    expenses.forEach(e => {
+      categories[e.category] = (categories[e.category] || 0) + (Number(e.amount) || 0);
+    });
+    if (paidPayroll > 0) categories['Payroll'] = paidPayroll;
+    
+    return Object.keys(categories).map(k => ({ name: k, value: categories[k] }));
+  }, [expenses, paidPayroll]);
+
+  const planDistributionData = useMemo(() => {
+    const dist = {};
+    payments.forEach(p => {
+      const plan = p.planName || p.duration || 'Other';
+      dist[plan] = (dist[plan] || 0) + 1;
+    });
+    return Object.keys(dist).map(k => ({ name: k, count: dist[k] }));
+  }, [payments]);
+
+  const COLORS = ['#dc2626', '#991b1b', '#7f1d1d', '#450a0a', '#ef4444', '#b91c1c'];
 
   // --- PLANS HANDLERS ---
   const handleAddPlan = async (e) => {
@@ -335,9 +384,103 @@ const Finances = () => {
 
         {/* Top Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-12">
-          <StatCard title="Total Expenses" value={`LKR ${totalOutgoing.toLocaleString()}`} trend="Net Out" icon={<TrendingDown />} colorClass="text-red-500" />
-          <StatCard title="Net Profit" value={`LKR ${netProfit.toLocaleString()}`} trend="Profit/Loss" icon={<TrendingUp />} colorClass="text-red-500" />
-          <StatCard title="Gross Income" value={`LKR ${totalIncome.toLocaleString()}`} trend="Total Revenue" icon={<ShoppingBag />} colorClass="text-red-500" />
+          <StatCard title="Total Expenses" value={`LKR ${totalExpenses.toLocaleString()}`} trend="Net Out" icon={<TrendingDown />} colorClass="text-red-500" />
+          <StatCard title="Net Profit" value={`LKR ${netProfit.toLocaleString()}`} trend="Total Profit/Loss" icon={<TrendingUp />} colorClass="text-red-500" />
+          <StatCard title="Total Payments" value={`LKR ${totalMemberPayments.toLocaleString()}`} trend="Gross Revenue" icon={<ShoppingBag />} colorClass="text-red-500" />
+        </div>
+
+        {/* Charts & Analytics Section */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-12">
+          {/* Monthly Revenue vs Expenses */}
+          <div className="bg-[#121212] border border-gray-800 rounded-3xl p-6 lg:p-8 shadow-xl">
+             <div className="flex items-center gap-3 mb-6">
+                <BarChart3 className="text-red-500" size={24} />
+                <h2 className="text-xl font-black uppercase italic tracking-wider">Revenue vs Expenses</h2>
+             </div>
+             <div className="h-[300px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={monthlyData}>
+                    <defs>
+                      <linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#dc2626" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="#dc2626" stopOpacity={0}/>
+                      </linearGradient>
+                      <linearGradient id="colorExpenses" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#555" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="#555" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#222" vertical={false} />
+                    <XAxis dataKey="name" stroke="#555" fontSize={10} fontWeight="bold" />
+                    <YAxis stroke="#555" fontSize={10} fontWeight="bold" tickFormatter={(value) => `LKR ${value / 1000}k`} />
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: '#080808', border: '1px solid #333', borderRadius: '12px' }}
+                      itemStyle={{ fontSize: '12px', fontWeight: 'bold' }}
+                    />
+                    <Area type="monotone" dataKey="income" name="Revenue" stroke="#dc2626" fillOpacity={1} fill="url(#colorIncome)" strokeWidth={3} />
+                    <Area type="monotone" dataKey="expenses" name="Expenses" stroke="#555" fillOpacity={1} fill="url(#colorExpenses)" strokeWidth={3} />
+                  </AreaChart>
+                </ResponsiveContainer>
+             </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Expense Distribution */}
+            <div className="bg-[#121212] border border-gray-800 rounded-3xl p-6 lg:p-8 shadow-xl">
+              <h3 className="text-[10px] font-black uppercase text-gray-500 mb-6 tracking-widest text-center">Expense Distribution</h3>
+              <div className="h-[200px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={expenseCategoryData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={80}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      {expenseCategoryData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: '#080808', border: '1px solid #333', borderRadius: '12px' }}
+                      itemStyle={{ fontSize: '10px', color: '#fff' }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="mt-4 flex flex-wrap justify-center gap-x-4 gap-y-2">
+                {expenseCategoryData.map((entry, index) => (
+                  <div key={index} className="flex items-center gap-1.5">
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
+                    <span className="text-[9px] font-bold text-gray-400 uppercase">{entry.name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Plan Distribution */}
+            <div className="bg-[#121212] border border-gray-800 rounded-3xl p-6 lg:p-8 shadow-xl">
+              <h3 className="text-[10px] font-black uppercase text-gray-500 mb-6 tracking-widest text-center">Member Plan Reach</h3>
+              <div className="h-[200px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={planDistributionData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#222" vertical={false} />
+                    <XAxis dataKey="name" hide />
+                    <YAxis hide />
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: '#080808', border: '1px solid #333', borderRadius: '12px' }}
+                      cursor={{fill: 'transparent'}}
+                    />
+                    <Bar dataKey="count" name="Members" fill="#dc2626" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+              <p className="text-[9px] text-center text-gray-600 mt-2 uppercase font-black tracking-widest">Active Plans Breakdown</p>
+            </div>
+          </div>
         </div>
 
         {/* Bottom Nav Cards */}
