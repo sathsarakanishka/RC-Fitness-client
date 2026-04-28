@@ -41,7 +41,7 @@ const Landing = () => {
             Experience the ultimate fitness transformation with elite trainers, state-of-the-art equipment, and a community built for performance.
           </p>
           <button type="button"
-          onClick={() => navigate('/login')}
+          onClick={() => navigate('/Login')}
           className="bg-red-600 hover:bg-red-700 px-10 py-4 font-black uppercase tracking-[0.2em] text-xs transition-all shadow-2xl shadow-red-900/20 active:scale-95">
             Join Now +
           </button>
