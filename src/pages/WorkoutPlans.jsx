@@ -29,13 +29,13 @@ const WorkoutPlans = () => {
 
       // Fetch status first
       try {
-        const { data: statusData } = await axios.get('http://localhost:5000/api/workout-plans/status', { headers });
+        const { data: statusData } = await axios.get('https://rc-fitness-backend.vercel.app/api/workout-plans/status', { headers });
         setRequested(statusData.workoutPlanRequested);
       } catch (err) { console.error('Status fetch error', err); }
 
       // Fetch plan
       try {
-        const { data } = await axios.get('http://localhost:5000/api/workout-plans/me', { headers });
+        const { data } = await axios.get('https://rc-fitness-backend.vercel.app/api/workout-plans/me', { headers });
         setPlan(data);
         // Initialize expanded state for first day if not set
         setExpandedDays(prev => {
@@ -47,7 +47,7 @@ const WorkoutPlans = () => {
 
         // Fetch workout history to calculate completion percentage for this plan & week
         try {
-            const { data: history } = await axios.get('http://localhost:5000/api/workouts/history', { headers });
+            const { data: history } = await axios.get('https://rc-fitness-backend.vercel.app/api/workouts/history', { headers });
             // Filter history for this program and week
             const currentWeekLogs = history.filter(log => log.programName === data.programName && log.week === data.week);
             const completedDays = currentWeekLogs.map(log => log.day);
@@ -83,6 +83,7 @@ const WorkoutPlans = () => {
         } catch (err) { console.error('History fetch error', err); }
 
       } catch (err) {
+        console.error("fetchWorkoutPlan error:", err);
         // No active plan
         setPlan(null);
       }
@@ -103,7 +104,7 @@ const WorkoutPlans = () => {
       try {
           setRequesting(true);
           const token = localStorage.getItem('authToken');
-          await axios.post('http://localhost:5000/api/workout-plans/request', {}, {
+          await axios.post('https://rc-fitness-backend.vercel.app/api/workout-plans/request', {}, {
               headers: { 'auth-token': token }
           });
           setRequested(true);
@@ -119,7 +120,7 @@ const WorkoutPlans = () => {
       try {
           setRequesting(true);
           const token = localStorage.getItem('authToken');
-          await axios.post('http://localhost:5000/api/workout-plans/cancel-request', {}, {
+          await axios.post('https://rc-fitness-backend.vercel.app/api/workout-plans/cancel-request', {}, {
               headers: { 'auth-token': token }
           });
           setRequested(false);
@@ -152,7 +153,7 @@ const WorkoutPlans = () => {
     setIsSubmitting(true);
     try {
       const token = localStorage.getItem('authToken');
-      await axios.post('http://localhost:5000/api/workouts/complete', {
+      await axios.post('https://rc-fitness-backend.vercel.app/api/workouts/complete', {
         programName: plan.programName,
         week: plan.week,
         day: day.dayName,
@@ -182,7 +183,7 @@ const WorkoutPlans = () => {
     setIsResetting(true);
     try {
       const token = localStorage.getItem('authToken');
-      await axios.delete('http://localhost:5000/api/workouts/reset', {
+      await axios.delete('https://rc-fitness-backend.vercel.app/api/workouts/reset', {
         headers: { 'auth-token': token },
         data: { programName: plan.programName, week: plan.week }
       });

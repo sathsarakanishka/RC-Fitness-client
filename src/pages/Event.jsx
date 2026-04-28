@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { API_BASE_URL } from '../config';
 import axios from 'axios';
 import Sidebar from '../components/Sidebar';
 import StatCard from '../components/StatCard';
@@ -27,8 +28,8 @@ const Event = () => {
       const token = localStorage.getItem('authToken');
       const config = { headers: { 'auth-token': token } };
       const [eventsRes, annRes] = await Promise.all([
-        axios.get('https://rc-fitness-backend.vercel.app/api/events'),
-        axios.get('https://rc-fitness-backend.vercel.app/api/events/announcements/all')
+        axios.get(`https://rc-fitness-backend.vercel.app/api/events`),
+        axios.get(`https://rc-fitness-backend.vercel.app/api/events/announcements/all`)
       ]);
       setEvents(eventsRes.data);
       setAnnouncements(annRes.data);
@@ -72,7 +73,7 @@ const Event = () => {
         setEditEventId(null);
         showNotification('Event updated successfully');
       } else {
-        await axios.post('https://rc-fitness-backend.vercel.app/api/events/add', newEvent, config);
+        await axios.post(`https://rc-fitness-backend.vercel.app/api/events/add`, newEvent, config);
         fetchEventData();
         showNotification('Event scheduled successfully');
       }
@@ -106,7 +107,7 @@ const Event = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('authToken');
-      await axios.post('https://rc-fitness-backend.vercel.app/api/events/announcements/add', newAnnouncement, { headers: { 'auth-token': token } });
+      await axios.post(`https://rc-fitness-backend.vercel.app/api/events/announcements/add`, newAnnouncement, { headers: { 'auth-token': token } });
       setNewAnnouncement({ title: '', content: '', date: new Date().toISOString().split('T')[0], category: 'General' });
       fetchEventData();
       showNotification('News published successfully');

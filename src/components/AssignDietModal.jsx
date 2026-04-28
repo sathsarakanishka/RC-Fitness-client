@@ -18,7 +18,7 @@ const AssignDietModal = ({ isOpen, onClose, memberName, userId, refreshData }) =
     setIsSubmitting(true);
     try {
       const token = localStorage.getItem('authToken');
-      await axios.post('http://localhost:5000/api/diet-plans/assign', {
+      await axios.post('https://rc-fitness-backend.vercel.app/api/diet-plans/assign', {
         userId,
         goal,
         dietDetails

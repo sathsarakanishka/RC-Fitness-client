@@ -7,7 +7,7 @@ import StatCard from '../../components/StatCard';
 import ReceiptModal from '../../components/ReceiptModal';
 import ImageModal from '../../components/ImageModal';
 import { Plus, Trash2, Calendar, FileText, Edit2, TrendingUp, BarChart3, Users, ShoppingBag, Banknote, TrendingDown, Receipt, CheckCircle, X, Image as ImageIcon, Landmark } from 'lucide-react';
-import { API_BASE_URL } from '../../config';
+
 
 const Finances = () => {
   const [activeTab, setActiveTab] = useState('plans');

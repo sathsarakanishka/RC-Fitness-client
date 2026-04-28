@@ -15,7 +15,7 @@ const AdminDietPlans = () => {
   const fetchData = async () => {
     try {
       const token = localStorage.getItem('authToken');
-      const res = await axios.get('http://localhost:5000/api/diet-plans/all', {
+      const res = await axios.get('https://rc-fitness-backend.vercel.app/api/diet-plans/all', {
         headers: { 'auth-token': token }
       });
       setData(res.data);
@@ -34,7 +34,7 @@ const AdminDietPlans = () => {
     if (!window.confirm('Are you sure you want to delete this diet plan?')) return;
     try {
       const token = localStorage.getItem('authToken');
-      await axios.delete(`http://localhost:5000/api/diet-plans/${dietPlanId}`, {
+      await axios.delete(`https://rc-fitness-backend.vercel.app/api/diet-plans/${dietPlanId}`, {
         headers: { 'auth-token': token }
       });
       fetchData();

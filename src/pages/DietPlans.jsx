@@ -20,7 +20,7 @@ const DietPlans = () => {
       // Fetch status first
       try {
         const token = localStorage.getItem('authToken');
-        const { data } = await axios.get('http://localhost:5000/api/diet-plans/me', {
+        const { data } = await axios.get('https://rc-fitness-backend.vercel.app/api/diet-plans/me', {
           headers: { 'auth-token': token }
         });
         setMeals(data.meals);
@@ -52,7 +52,7 @@ const DietPlans = () => {
     setRequesting(true);
     try {
       const token = localStorage.getItem('authToken');
-      await axios.post('http://localhost:5000/api/diet-plans/request', {}, {
+      await axios.post('https://rc-fitness-backend.vercel.app/api/diet-plans/request', {}, {
         headers: { 'auth-token': token }
       });
       setRequested(true);

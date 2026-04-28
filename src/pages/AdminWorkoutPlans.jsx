@@ -27,15 +27,15 @@ const AdminWorkoutPlans = () => {
       const headers = { 'auth-token': token };
 
       // Fetch all members
-      const { data: usersData } = await axios.get('http://localhost:5000/api/user/all', { headers });
+      const { data: usersData } = await axios.get('https://rc-fitness-backend.vercel.app/api/user/all', { headers });
       setMembers(usersData);
 
       // Fetch all existing workout plans
-      const { data: plansData } = await axios.get('http://localhost:5000/api/workout-plans/all', { headers });
+      const { data: plansData } = await axios.get('https://rc-fitness-backend.vercel.app/api/workout-plans/all', { headers });
       setWorkoutPlans(plansData);
 
       // Fetch all workout logs to calculate completion dynamically
-      const { data: historyData } = await axios.get('http://localhost:5000/api/workouts/all-history', { headers });
+      const { data: historyData } = await axios.get('https://rc-fitness-backend.vercel.app/api/workouts/all-history', { headers });
       setAllHistory(historyData);
 
     } catch (err) {
@@ -179,7 +179,7 @@ const AdminWorkoutPlans = () => {
         ...formData
       };
 
-      await axios.post('http://localhost:5000/api/workout-plans/update', payload, {
+      await axios.post('https://rc-fitness-backend.vercel.app/api/workout-plans/update', payload, {
         headers: { 'auth-token': token }
       });
 
@@ -196,7 +196,7 @@ const AdminWorkoutPlans = () => {
     if (!window.confirm('Are you sure you want to delete this workout plan?')) return;
     try {
       const token = localStorage.getItem('authToken');
-      await axios.delete(`http://localhost:5000/api/workout-plans/delete/${userId}`, {
+      await axios.delete(`https://rc-fitness-backend.vercel.app/api/workout-plans/delete/${userId}`, {
         headers: { 'auth-token': token }
       });
       alert('Workout plan deleted.');
