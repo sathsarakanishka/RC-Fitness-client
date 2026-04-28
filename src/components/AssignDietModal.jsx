@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Utensils, X, Info, Save } from 'lucide-react';
 import axios from 'axios';
 
-const AssignDietModal = ({ isOpen, onClose, memberName = 'SARAH CONNOR (#RC-8842)' }) => {
+const AssignDietModal = ({ isOpen, onClose, memberName, userId, refreshData }) => {
   const [goal, setGoal] = useState('');
   const [dietDetails, setDietDetails] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -17,12 +17,16 @@ const AssignDietModal = ({ isOpen, onClose, memberName = 'SARAH CONNOR (#RC-8842
 
     setIsSubmitting(true);
     try {
-      await axios.post('https://rc-fitness-backend.vercel.app/api/diet/assign', {
-        memberName,
+      const token = localStorage.getItem('authToken');
+      await axios.post('http://localhost:5000/api/diet-plans/assign', {
+        userId,
         goal,
         dietDetails
+      }, {
+        headers: { 'auth-token': token }
       });
       alert('Diet plan successfully assigned!');
+      if (refreshData) refreshData();
       onClose();
     } catch (err) {
       console.error(err);
