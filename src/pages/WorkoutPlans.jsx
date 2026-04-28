@@ -115,6 +115,22 @@ const WorkoutPlans = () => {
       }
   };
 
+  const handleCancelRequest = async () => {
+      try {
+          setRequesting(true);
+          const token = localStorage.getItem('authToken');
+          await axios.post('http://localhost:5000/api/workout-plans/cancel-request', {}, {
+              headers: { 'auth-token': token }
+          });
+          setRequested(false);
+      } catch (err) {
+          console.error('Error cancelling request:', err);
+          showNotification('Failed to cancel request.', 'error');
+      } finally {
+          setRequesting(false);
+      }
+  };
+
   const toggleDayExpansion = (dayIndex) => {
       setExpandedDays(prev => ({ ...prev, [dayIndex]: !prev[dayIndex] }));
   };
@@ -245,9 +261,14 @@ const WorkoutPlans = () => {
                   <span className="text-[10px] font-bold uppercase tracking-widest text-red-500/80">Active Program</span>
                 </div>
                 {requested ? (
-                  <span className="text-yellow-500 text-[10px] font-bold uppercase tracking-widest px-2 py-1 border border-yellow-500/30 rounded bg-yellow-500/10">
-                    Change Requested
-                  </span>
+                  <button 
+                    onClick={handleCancelRequest}
+                    disabled={requesting}
+                    className="text-yellow-500 hover:text-red-500 text-[10px] font-bold uppercase tracking-widest px-2 py-1 border border-yellow-500/30 hover:border-red-500/30 rounded bg-yellow-500/10 hover:bg-red-500/10 transition-all disabled:opacity-50"
+                    title="Cancel Request"
+                  >
+                    {requesting ? '...' : 'Change Requested (Click to Cancel)'}
+                  </button>
                 ) : (
                   <button 
                     onClick={handleRequestPlan}

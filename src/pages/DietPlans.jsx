@@ -9,6 +9,8 @@ const DietPlans = () => {
   const [goal, setGoal] = useState('Weight Loss');
   const [coachNote, setCoachNote] = useState('');
   const [loading, setLoading] = useState(true);
+  const [requested, setRequested] = useState(false);
+  const [requesting, setRequesting] = useState(false);
 
   const fetchDietPlan = async () => {
     try {
@@ -18,7 +20,7 @@ const DietPlans = () => {
       // Fetch status first
       try {
         const token = localStorage.getItem('authToken');
-        const { data } = await axios.get('https://rc-fitness-backend.vercel.app/api/diet-plans/me', {
+        const { data } = await axios.get('http://localhost:5000/api/diet-plans/me', {
           headers: { 'auth-token': token }
         });
         setMeals(data.meals);
@@ -26,7 +28,10 @@ const DietPlans = () => {
         setGoal(data.goal);
         setCoachNote(data.coachNote);
       } catch (err) {
-        // No active plan, perfectly fine.
+        // No active plan, perfectly fine. Set the requested state if returned.
+        if (err.response && err.response.data && err.response.data.requested) {
+          setRequested(true);
+        }
       }
     } finally {
       setLoading(false);
@@ -43,14 +48,52 @@ const DietPlans = () => {
 
   if (loading) return <div className="h-screen bg-black flex items-center justify-center text-red-600 font-bold animate-pulse uppercase tracking-widest">Initialising Nutrition Protocol...</div>;
 
+  const handleRequestPlan = async () => {
+    setRequesting(true);
+    try {
+      const token = localStorage.getItem('authToken');
+      await axios.post('http://localhost:5000/api/diet-plans/request', {}, {
+        headers: { 'auth-token': token }
+      });
+      setRequested(true);
+      alert('Diet plan requested successfully! Our coaches will prepare it soon.');
+    } catch (err) {
+      console.error(err);
+      alert('Failed to request diet plan. Please try again later.');
+    } finally {
+      setRequesting(false);
+    }
+  };
+
   if (meals.length === 0) return (
     <div className="flex bg-[#0d0a0a] min-h-screen text-white">
       <MemberSidebar />
-      <div className="flex-1 flex items-center justify-center p-12 lg:ml-64">
-        <div className="bg-[#111] border border-red-900/20 p-10 rounded-3xl text-center max-w-md">
+      <div className="flex-1 flex items-center justify-center p-12 lg:ml-64 relative overflow-hidden">
+        {/* Subtle background glow */}
+        <div className="absolute top-[20%] right-[-10%] w-[50%] h-[50%] bg-red-900/10 blur-[150px] rounded-full pointer-events-none"></div>
+
+        <div className="bg-[#111] border border-red-900/20 p-10 rounded-3xl text-center max-w-md relative z-10 shadow-lg shadow-black/50">
            <Flame size={48} className="text-red-900/50 mb-4 mx-auto" />
-           <h2 className="text-xl font-bold uppercase tracking-tight mb-2">No active diet plan</h2>
-           <p className="text-gray-500 text-sm">Your personalized nutrition protocol is currently being prepared by our coaches. Check back soon!</p>
+           <h2 className="text-2xl font-black uppercase tracking-tight mb-2 text-gray-200">No active diet plan</h2>
+           <p className="text-gray-400 text-sm mb-8 leading-relaxed">
+             {requested 
+               ? "Your personalized nutrition protocol is currently being prepared by our coaches. Check back soon!" 
+               : "You don't have an active diet plan yet. Request one to get personalized nutritional guidance from our experts."}
+           </p>
+           
+           {!requested && (
+             <button 
+               onClick={handleRequestPlan}
+               disabled={requesting}
+               className={`w-full py-3 px-6 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${
+                 requesting 
+                   ? 'bg-red-800 text-white/70 cursor-not-allowed' 
+                   : 'bg-red-600 hover:bg-red-500 text-white shadow-[0_0_15px_rgba(220,38,38,0.3)] hover:shadow-[0_0_25px_rgba(220,38,38,0.5)]'
+               }`}
+             >
+               {requesting ? 'Requesting...' : 'Request Diet Plan'}
+             </button>
+           )}
         </div>
       </div>
     </div>
