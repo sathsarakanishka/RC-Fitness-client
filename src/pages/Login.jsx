@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -44,7 +44,15 @@ function Login() {
       {/* Dark overlay to make the form pop */}
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
 
-      <form onSubmit={handleLogin} className="relative bg-black/60 p-10 rounded-3xl border border-gray-800 w-[400px] shadow-2xl backdrop-blur-md">
+      <form onSubmit={handleLogin} className="relative bg-black/60 pt-16 pb-10 px-10 rounded-3xl border border-gray-800 w-[400px] shadow-2xl backdrop-blur-md">
+        <button
+          type="button"
+          onClick={() => navigate('/')}
+          className="absolute top-6 left-6 flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-[10px] font-bold uppercase tracking-widest"
+        >
+          <ArrowLeft size={14} />
+          Back
+        </button>
         <h1 className="text-4xl font-black text-red-600 text-center uppercase tracking-tighter mb-2 italic">RC FITNESS</h1>
         <p className="text-gray-400 text-center text-[10px] mb-8 tracking-[0.3em] uppercase font-bold">Secure Access Portal</p>
 
@@ -76,7 +84,7 @@ function Login() {
           </div>
 
           <button type="submit" disabled={loading} className="w-full py-4 bg-red-600 hover:bg-red-700 text-white font-black rounded-xl transition-all shadow-[0_0_20px_rgba(220,38,38,0.3)] uppercase text-xs tracking-[0.2em] mt-6">
-            {loading ? "Authenticating..." : "Sign In"}
+            {loading ? "Authenticating..." : "Let's Get Fit"}
           </button>
         </div>
       </form>

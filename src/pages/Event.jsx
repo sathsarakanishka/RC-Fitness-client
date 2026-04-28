@@ -7,7 +7,7 @@ import { Calendar, Plus, Edit2, Trash2, Image as ImageIcon, MapPin, Clock, Tag, 
 
 const Event = () => {
   const [events, setEvents] = useState([]);
-  const [newEvent, setNewEvent] = useState({ title: '', date: '', time: '', type: '', location: '', description: '', image: '' });
+  const [newEvent, setNewEvent] = useState({ title: '', date: '', time: '', endDate: '', endTime: '', type: '', capacity: '', price: '', trainer: '', location: '', description: '', image: '' });
   const [editEventId, setEditEventId] = useState(null);
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [activeTab, setActiveTab] = useState('events');
@@ -57,7 +57,7 @@ const Event = () => {
 
   const handleSaveEvent = async (e) => {
     e.preventDefault();
-    if (!newEvent.title || !newEvent.date || !newEvent.time || !newEvent.type) {
+    if (!newEvent.title || !newEvent.date || !newEvent.time || !newEvent.endDate || !newEvent.endTime || !newEvent.type || !newEvent.capacity || newEvent.price === '' || !newEvent.trainer) {
       showNotification('Please fill in all required fields', 'error');
       return;
     }
@@ -76,7 +76,7 @@ const Event = () => {
         fetchEventData();
         showNotification('Event scheduled successfully');
       }
-      setNewEvent({ title: '', date: '', time: '', type: '', location: '', description: '', image: '' });
+      setNewEvent({ title: '', date: '', time: '', endDate: '', endTime: '', type: '', capacity: '', price: '', trainer: '', location: '', description: '', image: '' });
       setIsFormVisible(false);
     } catch (err) {
       console.error("Error saving event:", err);
@@ -148,7 +148,7 @@ const Event = () => {
               Print Event Schedule
             </button>
             <button
-              onClick={() => { setIsFormVisible(!isFormVisible); setEditEventId(null); setNewEvent({ title: '', date: '', time: '', type: '', location: '', description: '', image: '' }); }}
+              onClick={() => { setIsFormVisible(!isFormVisible); setEditEventId(null); setNewEvent({ title: '', date: '', time: '', endDate: '', endTime: '', type: '', capacity: '', price: '', trainer: '', location: '', description: '', image: '' }); }}
               className="w-full lg:w-auto bg-red-600 hover:bg-red-700 px-6 py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-2xl transition-all active:scale-95"
             >
               {isFormVisible ? 'Close Form' : <><Plus size={14} className="inline mr-2" /> Schedule Event</>}
@@ -186,15 +186,39 @@ const Event = () => {
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-[10px] uppercase font-bold text-gray-500 tracking-widest mb-2">Date</label>
+                        <label className="block text-[10px] uppercase font-bold text-gray-500 tracking-widest mb-2">Start Date</label>
                         <input type="date" value={newEvent.date} onChange={e => setNewEvent({ ...newEvent, date: e.target.value })} className="w-full bg-black border border-gray-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red-600 transition-colors text-gray-400" required />
                       </div>
                       <div>
-                        <label className="block text-[10px] uppercase font-bold text-gray-500 tracking-widest mb-2">Time</label>
+                        <label className="block text-[10px] uppercase font-bold text-gray-500 tracking-widest mb-2">Start Time</label>
                         <input type="time" value={newEvent.time} onChange={e => setNewEvent({ ...newEvent, time: e.target.value })} className="w-full bg-black border border-gray-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red-600 transition-colors text-gray-400" required />
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-[10px] uppercase font-bold text-gray-500 tracking-widest mb-2">End Date</label>
+                        <input type="date" value={newEvent.endDate} onChange={e => setNewEvent({ ...newEvent, endDate: e.target.value })} className="w-full bg-black border border-gray-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red-600 transition-colors text-gray-400" min={newEvent.date} required />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] uppercase font-bold text-gray-500 tracking-widest mb-2">End Time</label>
+                        <input type="time" value={newEvent.endTime} onChange={e => setNewEvent({ ...newEvent, endTime: e.target.value })} className="w-full bg-black border border-gray-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red-600 transition-colors text-gray-400" required />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-[10px] uppercase font-bold text-gray-500 tracking-widest mb-2">Capacity</label>
+                        <input type="number" min="1" value={newEvent.capacity} onChange={e => setNewEvent({ ...newEvent, capacity: e.target.value })} className="w-full bg-black border border-gray-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red-600 transition-colors" required placeholder="Ex: 20" />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] uppercase font-bold text-gray-500 tracking-widest mb-2">Price ($)</label>
+                        <input type="number" min="0" step="0.01" value={newEvent.price} onChange={e => setNewEvent({ ...newEvent, price: e.target.value })} className="w-full bg-black border border-gray-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red-600 transition-colors" required placeholder="0.00 for free" />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-[10px] uppercase font-bold text-gray-500 tracking-widest mb-2">Trainer</label>
+                        <input type="text" value={newEvent.trainer} onChange={e => setNewEvent({ ...newEvent, trainer: e.target.value })} className="w-full bg-black border border-gray-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red-600 transition-colors" required placeholder="Trainer Name" />
+                      </div>
                       <div>
                         <label className="block text-[10px] uppercase font-bold text-gray-500 tracking-widest mb-2">Event Type</label>
                         <select value={newEvent.type} onChange={e => setNewEvent({ ...newEvent, type: e.target.value })} className="w-full bg-black border border-gray-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red-600 transition-colors text-gray-400" required>
@@ -205,10 +229,10 @@ const Event = () => {
                           <option value="Social">Social</option>
                         </select>
                       </div>
-                      <div>
-                        <label className="block text-[10px] uppercase font-bold text-gray-500 tracking-widest mb-2">Location</label>
-                        <input type="text" value={newEvent.location} onChange={e => setNewEvent({ ...newEvent, location: e.target.value })} className="w-full bg-black border border-gray-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red-600 transition-colors" placeholder="e.g. Main Studio" />
-                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] uppercase font-bold text-gray-500 tracking-widest mb-2">Location</label>
+                      <input type="text" value={newEvent.location} onChange={e => setNewEvent({ ...newEvent, location: e.target.value })} className="w-full bg-black border border-gray-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red-600 transition-colors" placeholder="e.g. Main Studio" />
                     </div>
                     <div>
                       <label className="block text-[10px] uppercase font-bold text-gray-500 tracking-widest mb-2 mt-2">Event Description / Details</label>
@@ -284,7 +308,7 @@ const Event = () => {
                     </div>
 
                     <div className="mt-auto flex gap-2 pt-4 border-t border-gray-900">
-                      <button onClick={() => { setEditEventId(ev._id); setNewEvent({ title: ev.title, date: ev.date, time: ev.time, type: ev.type, location: ev.location, description: ev.description || '', image: ev.image }); setIsFormVisible(true); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="flex-1 bg-gray-900 hover:bg-gray-800 text-white text-[10px] font-black uppercase tracking-widest py-3 rounded-xl transition-colors flex items-center justify-center gap-2">
+                      <button onClick={() => { setEditEventId(ev._id); setNewEvent({ title: ev.title, date: ev.date, time: ev.time, endDate: ev.endDate || '', endTime: ev.endTime || '', type: ev.type, capacity: ev.capacity || '', price: ev.price || '', trainer: ev.trainer || '', location: ev.location, description: ev.description || '', image: ev.image }); setIsFormVisible(true); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="flex-1 bg-gray-900 hover:bg-gray-800 text-white text-[10px] font-black uppercase tracking-widest py-3 rounded-xl transition-colors flex items-center justify-center gap-2">
                         <Edit2 size={14} /> Edit
                       </button>
                       <button onClick={() => handleDeleteEvent(ev._id)} className="flex-1 bg-red-900/20 hover:bg-red-600 hover:text-white text-red-500 border border-red-900/30 hover:border-red-600 text-[10px] font-black uppercase tracking-widest py-3 rounded-xl transition-all flex items-center justify-center gap-2">

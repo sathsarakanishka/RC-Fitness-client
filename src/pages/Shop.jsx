@@ -418,6 +418,8 @@ const Shop = () => {
                     value={newPromo.discountValue}
                     onChange={e => setNewPromo({ ...newPromo, discountValue: e.target.value })}
                     className="flex-1 bg-transparent border-none px-4 py-3 text-sm focus:outline-none"
+                    min="0"
+                    max={newPromo.discountType === 'percentage' ? "100" : undefined}
                     required
                   />
                   <select
@@ -437,6 +439,7 @@ const Shop = () => {
                     value={newPromo.userLimit}
                     onChange={e => setNewPromo({ ...newPromo, userLimit: e.target.value })}
                     className="bg-black border border-gray-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red-600 transition-colors"
+                    min="1"
                   />
                 ) : (
                   <div className="flex flex-col justify-center px-4 bg-black/40 rounded-xl border border-gray-800">
@@ -451,6 +454,7 @@ const Shop = () => {
                   value={newPromo.endDate}
                   onChange={e => setNewPromo({ ...newPromo, endDate: e.target.value })}
                   className="bg-black border border-gray-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red-600 transition-colors text-gray-400"
+                  min={new Date().toISOString().split('T')[0]}
                   required
                 />
               </div>
