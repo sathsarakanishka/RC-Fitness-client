@@ -22,7 +22,7 @@ import Progress from './pages/Progress';
 import Equipment from './pages/Equipment';
 import Classes from './pages/Classes';
 import AdminClass from './pages/AdminClass';
-import AdminDietPlans from './pages/AdminDietPlans';
+//import AdminDietPlans from './pages/AdminDietPlans';
 import AdminWorkoutPlans from './pages/AdminWorkoutPlans';
 import MemberReviews from './pages/MemberReviews';
 import Membership from './pages/Membership';
