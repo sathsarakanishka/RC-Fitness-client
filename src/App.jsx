@@ -22,6 +22,8 @@ import Progress from './pages/Progress';
 import Equipment from './pages/Equipment';
 import Classes from './pages/Classes';
 import AdminClass from './pages/AdminClass';
+//import AdminDietPlans from './pages/AdminDietPlans';
+import AdminWorkoutPlans from './pages/AdminWorkoutPlans';
 import MemberReviews from './pages/MemberReviews';
 import Membership from './pages/Membership';
 import Scanner from './pages/Scanner';
@@ -73,6 +75,7 @@ function App() {
           <Route path="/event" element={<AdminRoute><Event /></AdminRoute>} />
           <Route path="/equipment" element={<AdminRoute><Equipment /></AdminRoute>} />
           <Route path="/class" element={<AdminRoute><AdminClass /></AdminRoute>} />
+          <Route path="/admin-workout-plans" element={<AdminRoute><AdminWorkoutPlans /></AdminRoute>} />
         </Routes>
 
       </Router>

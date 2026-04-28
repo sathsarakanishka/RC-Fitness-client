@@ -10,8 +10,12 @@ const DietPlans = () => {
   const [coachNote, setCoachNote] = useState('');
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchDietPlan = async () => {
+  const fetchDietPlan = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      const headers = { 'auth-token': token };
+
+      // Fetch status first
       try {
         const token = localStorage.getItem('authToken');
         const { data } = await axios.get('https://rc-fitness-backend.vercel.app/api/diet-plans/me', {
@@ -22,12 +26,19 @@ const DietPlans = () => {
         setGoal(data.goal);
         setCoachNote(data.coachNote);
       } catch (err) {
-        console.error('No diet plan found or error fetching:', err);
-      } finally {
-        setLoading(false);
+        // No active plan, perfectly fine.
       }
-    };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchDietPlan();
+    const interval = setInterval(() => {
+      fetchDietPlan();
+    }, 5000);
+    return () => clearInterval(interval);
   }, []);
 
   if (loading) return <div className="h-screen bg-black flex items-center justify-center text-red-600 font-bold animate-pulse uppercase tracking-widest">Initialising Nutrition Protocol...</div>;
@@ -66,6 +77,9 @@ const DietPlans = () => {
                 <span className="text-sm font-bold uppercase tracking-widest">({goal})</span>
                 <Flame size={18} className="fill-current" />
               </div>
+              
+
+
               <button 
                 onClick={() => window.print()}
                 className="flex items-center gap-3 border border-red-500 text-red-500 hover:bg-red-500 hover:text-white px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest transition-all"
