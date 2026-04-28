@@ -14,8 +14,12 @@ const DietPlans = () => {
   const [requested, setRequested] = useState(false);
   const [requesting, setRequesting] = useState(false);
 
-  useEffect(() => {
-    const fetchDietPlan = async () => {
+  const fetchDietPlan = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      const headers = { 'auth-token': token };
+
+      // Fetch status first
       try {
         const token = localStorage.getItem('authToken');
         
@@ -37,12 +41,19 @@ const DietPlans = () => {
         setCoachNote(data.coachNote);
         setDietDetails(data.dietDetails || '');
       } catch (err) {
-        console.error('No diet plan found or error fetching:', err);
-      } finally {
-        setLoading(false);
+        // No active plan, perfectly fine.
       }
-    };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchDietPlan();
+    const interval = setInterval(() => {
+      fetchDietPlan();
+    }, 5000);
+    return () => clearInterval(interval);
   }, []);
 
   const handleRequestPlan = async () => {
@@ -115,6 +126,9 @@ const DietPlans = () => {
                 <span className="text-sm font-bold uppercase tracking-widest">(Weight Loss)</span>
                 <Flame size={18} className="fill-current" />
               </div>
+              
+
+
               <button 
                 onClick={handleRequestPlan}
                 disabled={requested || requesting}
