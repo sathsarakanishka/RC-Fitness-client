@@ -40,7 +40,9 @@ const Landing = () => {
           <p className="text-gray-400 text-sm md:text-base max-w-lg mx-auto mb-10 leading-relaxed font-medium">
             Experience the ultimate fitness transformation with elite trainers, state-of-the-art equipment, and a community built for performance.
           </p>
-          <button className="bg-red-600 hover:bg-red-700 px-10 py-4 font-black uppercase tracking-[0.2em] text-xs transition-all shadow-2xl shadow-red-900/20 active:scale-95">
+          <button type="button"
+          onClick={() => navigate('/login')}
+          className="bg-red-600 hover:bg-red-700 px-10 py-4 font-black uppercase tracking-[0.2em] text-xs transition-all shadow-2xl shadow-red-900/20 active:scale-95">
             Join Now +
           </button>
         </div>

@@ -5,7 +5,7 @@ import StatCard from '../components/StatCard';
 import { API_BASE_URL } from '../config';
 import InventoryReportModal from '../components/InventoryReportModal';
 import OrdersReportModal from '../components/OrdersReportModal';
-import { ShoppingBag, Plus, Edit2, Trash2, Image as ImageIcon, Tag, Package, CheckCircle, DollarSign, ListOrdered, AlertTriangle, Download } from 'lucide-react';
+import { ShoppingBag, Plus, Edit2, Trash2, Image as ImageIcon, Tag, Package, CheckCircle, DollarSign, ListOrdered, AlertTriangle, Download, Power } from 'lucide-react';
 
 const Shop = () => {
   const [products, setProducts] = useState([]);
@@ -17,6 +17,7 @@ const Shop = () => {
   const [activeTab, setActiveTab] = useState('inventory');
   const [orders, setOrders] = useState([]);
   const [promotions, setPromotions] = useState([]);
+  const [editPromoId, setEditPromoId] = useState(null);
   const [newPromo, setNewPromo] = useState({
     type: 'code',
     code: '',
@@ -96,7 +97,7 @@ const Shop = () => {
     } catch (err) { console.error("Error updating order status:", err); }
   };
 
-  const handleAddPromo = async (e) => {
+  const handleSavePromo = async (e) => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('authToken');
@@ -115,7 +116,12 @@ const Shop = () => {
         promoToSubmit.endDate = end;
       }
 
-      await axios.post(`https://rc-fitness-backend.vercel.app/api/shop/promotions/add`, promoToSubmit, { headers: { 'auth-token': token } });
+      if (editPromoId) {
+        await axios.put(`https://rc-fitness-backend.vercel.app/api/shop/promotions/update/${editPromoId}`, promoToSubmit, { headers: { 'auth-token': token } });
+        setEditPromoId(null);
+      } else {
+        await axios.post(`https://rc-fitness-backend.vercel.app/api/shop/promotions/add`, promoToSubmit, { headers: { 'auth-token': token } });
+      }
       setNewPromo({
         type: 'code',
         code: '',
@@ -127,7 +133,7 @@ const Shop = () => {
         isActive: true
       });
       fetchShopData();
-    } catch (err) { console.error("Error adding promo:", err); }
+    } catch (err) { console.error("Error saving promo:", err); }
   };
 
   const handleTogglePromo = async (id) => {
@@ -389,7 +395,7 @@ const Shop = () => {
               </button>
             </div>
 
-            <form onSubmit={handleAddPromo} className="mb-8 bg-[#121212] border border-gray-800 rounded-3xl p-6">
+            <form onSubmit={handleSavePromo} className="mb-8 bg-[#121212] border border-gray-800 rounded-3xl p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                 {newPromo.type === 'code' ? (
                   <input
@@ -458,8 +464,15 @@ const Shop = () => {
                   required
                 />
               </div>
+              {editPromoId && (
+                <div className="flex justify-end mb-2">
+                  <button type="button" onClick={() => { setEditPromoId(null); setNewPromo({ type: 'code', code: '', title: '', discountValue: '', discountType: 'percentage', userLimit: '', endDate: '', isActive: true }); }} className="text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-red-500 transition-colors">
+                    Cancel Edit
+                  </button>
+                </div>
+              )}
               <button type="submit" className="w-full bg-red-600 hover:bg-red-700 text-white font-black uppercase text-[10px] tracking-widest py-4 rounded-xl transition-all shadow-lg active:scale-95">
-                {newPromo.type === 'code' ? 'Add Promo Code' : 'Start Flash Sale'}
+                {editPromoId ? 'Update Promotion' : (newPromo.type === 'code' ? 'Add Promo Code' : 'Start Flash Sale')}
               </button>
             </form>
 
@@ -504,10 +517,26 @@ const Shop = () => {
                   </div>
 
                   <div className="flex gap-2 shrink-0 w-full md:w-auto justify-end">
-                    <button onClick={() => handleTogglePromo(promo._id)} className="flex-1 md:flex-none p-3 bg-black border border-gray-900 rounded-xl text-gray-500 hover:text-red-500 hover:border-red-500 transition-all">
+                    <button onClick={() => handleTogglePromo(promo._id)} title={promo.isActive ? "Deactivate" : "Activate"} className={`flex-1 md:flex-none p-3 bg-black border border-gray-900 rounded-xl transition-all ${promo.isActive ? 'text-green-500 hover:border-green-500' : 'text-gray-500 hover:text-red-500 hover:border-red-500'}`}>
+                      <Power size={16} />
+                    </button>
+                    <button onClick={() => {
+                      setEditPromoId(promo._id);
+                      setNewPromo({
+                        type: promo.type || 'code',
+                        code: promo.code || '',
+                        title: promo.title || '',
+                        discountValue: promo.discountValue || '',
+                        discountType: promo.discountType || 'percentage',
+                        userLimit: promo.userLimit || '',
+                        endDate: promo.endDate ? new Date(promo.endDate).toISOString().split('T')[0] : '',
+                        isActive: promo.isActive !== false
+                      });
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }} title="Edit Promotion" className="flex-1 md:flex-none p-3 bg-black border border-gray-900 rounded-xl text-gray-500 hover:text-blue-500 hover:border-blue-500 transition-all">
                       <Edit2 size={16} />
                     </button>
-                    <button onClick={() => handleDeletePromo(promo._id)} className="flex-1 md:flex-none p-3 bg-black border border-gray-900 rounded-xl text-gray-500 hover:text-red-500 hover:border-red-500 transition-all">
+                    <button onClick={() => handleDeletePromo(promo._id)} title="Delete Promotion" className="flex-1 md:flex-none p-3 bg-black border border-gray-900 rounded-xl text-gray-500 hover:text-red-500 hover:border-red-500 transition-all">
                       <Trash2 size={16} />
                     </button>
                   </div>
