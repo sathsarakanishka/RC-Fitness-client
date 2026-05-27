@@ -1,16 +1,77 @@
-# React + Vite
+# RC Fitness Backend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A backend system developed for the RC Fitness Gym Management System as a university group project.
 
-Currently, two official plugins are available:
+## 📌 Project Overview
+This system is designed to manage gym operations efficiently, including:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- User & Access Management
+- Financial Management
+- Trainee Progress Tracking
+- Supplement Store Management
+- Event & Content Management
+- Scheduling & Resource Management
 
-## React Compiler
+## 🚀 Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 🔐 User & Access Management
+- Authentication system
+- Attendance dashboard
+- Fingerprint synchronization
+- Profile management
 
-## Expanding the ESLint configuration
+### 💳 Financial Management
+- Membership plan management
+- Payment handling
+- Payroll management
+- Income reporting
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### 🏋️ Trainee Progress Management
+- Workout plans
+- Progress tracking
+- Diet plans
+- Visual reports
+
+### 🛒 Supplement Store
+- Product catalog
+- Cart & checkout
+- Inventory management
+- Promotions
+
+### 📅 Event & Content Management
+- Event calendar
+- Registrations
+- CMS integration
+- Notifications
+
+### 🧑‍🏫 Scheduling & Resources
+- Class schedules
+- Trainer rosters
+- Equipment maintenance
+- Feedback management
+
+
+
+## 👨‍💻 Team Members
+
+| Name                  | Role                        |
+|-----------------------|-----------------------------|
+| W.P.D.I Sandaruwan    | User & Access Management    |
+| O.S.K Senadheera      | Financial Management        |
+| D.A.C.R Gunarathna    | Trainee Progress Management |
+| W.M.R Lakshima        | Supplement Store            |
+| K.R.W.A Jeewarathna   | Event & Content Management  |
+| W.M.H.K Wanasinghe    | Scheduling & Resources      |
+
+
+
+## 🛠️ Technologies Used
+- Node.js
+- Express.js
+- MongoDB
+- REST API
+- JWT Authentication
+
+
+
+npm start
