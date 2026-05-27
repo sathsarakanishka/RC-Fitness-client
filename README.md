@@ -73,5 +73,4 @@ This system is designed to manage gym operations efficiently, including:
 - JWT Authentication
 
 
-
 npm start
